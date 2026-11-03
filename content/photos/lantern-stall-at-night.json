@@ -1,0 +1,17 @@
+{
+  "$schema": "../../contracts/json-schema/photo.schema.json",
+  "id": "lantern-stall-at-night",
+  "title": "夜里的空摊位",
+  "description": "没有玩家的柜台保留着红色灯笼和暖色灯光，成为活动间隙的一处安静画面。",
+  "assetId": "media-4e86d161fd5f462cbb97b1e8a637e629",
+  "capturedAt": "2026-09-25T22:45:35+08:00",
+  "timeZone": "Asia/Shanghai",
+  "playerIds": [],
+  "storyIds": ["2026-mid-autumn-night"],
+  "tags": ["中秋", "市集", "灯笼", "夜景", "空景"],
+  "status": "draft",
+  "isMock": true,
+  "featured": false,
+  "displayVariant": "note",
+  "comments": []
+}

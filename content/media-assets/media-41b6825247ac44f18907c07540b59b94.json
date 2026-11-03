@@ -1,0 +1,70 @@
+{
+  "$schema": "../../contracts/json-schema/media-asset.schema.json",
+  "id": "media-41b6825247ac44f18907c07540b59b94",
+  "originalFilename": "2026-09-25_21.49.23.png",
+  "storageKey": "originals/2026/09/media-41b6825247ac44f18907c07540b59b94.png",
+  "mimeType": "image/png",
+  "extension": "png",
+  "byteSize": 6719119,
+  "width": 2560,
+  "height": 1369,
+  "sha256": "d39d62c626b8685e7dfde6e034b9edb531253f81cfacfe61cf13ad533c52bc4d",
+  "capturedAt": "2026-09-25T21:49:23+08:00",
+  "timeZone": "Asia/Shanghai",
+  "altText": "红色中式门楼和灯笼下，多名玩家角色以不同高低位置合影。",
+  "focalPoint": {
+    "x": 0.5,
+    "y": 0.65
+  },
+  "editorialStatus": "draft",
+  "processingStatus": "ready",
+  "allowOriginalDownload": false,
+  "variants": [
+    {
+      "name": "placeholder",
+      "storageKey": "variants/2026/09/media-41b6825247ac44f18907c07540b59b94/placeholder.webp",
+      "mimeType": "image/webp",
+      "byteSize": 404,
+      "width": 48,
+      "height": 26,
+      "sha256": "9baf5a74add880e0acd280c947ef3a0227ef487b000d2394b8d61fdcbc4bf4ad"
+    },
+    {
+      "name": "w480",
+      "storageKey": "variants/2026/09/media-41b6825247ac44f18907c07540b59b94/w480.webp",
+      "mimeType": "image/webp",
+      "byteSize": 19082,
+      "width": 480,
+      "height": 257,
+      "sha256": "40a62519f6430cfd314902e551b4a28d0dbf9fca06425f44e0ea848b36db217c"
+    },
+    {
+      "name": "w960",
+      "storageKey": "variants/2026/09/media-41b6825247ac44f18907c07540b59b94/w960.webp",
+      "mimeType": "image/webp",
+      "byteSize": 41554,
+      "width": 960,
+      "height": 513,
+      "sha256": "4923e1b481ad35970707a2977ef509f946eaedec1d704471bcdd4fd6e5b69123"
+    },
+    {
+      "name": "w1440",
+      "storageKey": "variants/2026/09/media-41b6825247ac44f18907c07540b59b94/w1440.webp",
+      "mimeType": "image/webp",
+      "byteSize": 66066,
+      "width": 1440,
+      "height": 770,
+      "sha256": "306c290cf4779815d27f455d5b5b92aeee73cf240a3123f5960e284501e795d2"
+    },
+    {
+      "name": "w1920",
+      "storageKey": "variants/2026/09/media-41b6825247ac44f18907c07540b59b94/w1920.webp",
+      "mimeType": "image/webp",
+      "byteSize": 88498,
+      "width": 1920,
+      "height": 1027,
+      "sha256": "9f7f1757072d19bdc103b16ed88bb6fe657c263aa483b546670d34d1120f3f7d"
+    }
+  ],
+  "importedAt": "2026-10-25T05:07:28+00:00"
+}

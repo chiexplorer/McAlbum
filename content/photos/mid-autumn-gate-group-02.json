@@ -1,0 +1,17 @@
+{
+  "$schema": "../../contracts/json-schema/photo.schema.json",
+  "id": "mid-autumn-gate-group-02",
+  "title": "门楼下的第二张合影",
+  "description": "玩家调整了站位，在灯笼和烟花之间留下另一张更活泼的集体照片。",
+  "assetId": "media-41b6825247ac44f18907c07540b59b94",
+  "capturedAt": "2026-09-25T21:49:23+08:00",
+  "timeZone": "Asia/Shanghai",
+  "playerIds": [],
+  "storyIds": ["2026-mid-autumn-night"],
+  "tags": ["中秋", "合影", "门楼"],
+  "status": "draft",
+  "isMock": true,
+  "featured": false,
+  "displayVariant": "normal",
+  "comments": []
+}

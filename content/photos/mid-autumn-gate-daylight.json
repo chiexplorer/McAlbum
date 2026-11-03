@@ -1,0 +1,17 @@
+{
+  "$schema": "../../contracts/json-schema/photo.schema.json",
+  "id": "mid-autumn-gate-daylight",
+  "title": "晴空下的门楼",
+  "description": "明亮天空让门楼的红色结构和灰白基座更加清楚，合影也记录了活动区域的整体尺度。",
+  "assetId": "media-e0ee4cab387446828668eaf3bb5a89a7",
+  "capturedAt": "2026-09-25T21:50:30+08:00",
+  "timeZone": "Asia/Shanghai",
+  "playerIds": [],
+  "storyIds": ["2026-mid-autumn-night"],
+  "tags": ["中秋", "合影", "门楼", "白天"],
+  "status": "draft",
+  "isMock": true,
+  "featured": false,
+  "displayVariant": "normal",
+  "comments": []
+}

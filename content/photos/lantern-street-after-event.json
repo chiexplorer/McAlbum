@@ -1,0 +1,17 @@
+{
+  "$schema": "../../contracts/json-schema/photo.schema.json",
+  "id": "lantern-street-after-event",
+  "title": "散场后的灯笼街",
+  "description": "人群离开后，石板路、树木和两侧建筑仍被红色灯笼与烛光照亮。",
+  "assetId": "media-32bb45698b774d7cba7ff4e2b63ce999",
+  "capturedAt": "2026-09-25T22:47:24+08:00",
+  "timeZone": "Asia/Shanghai",
+  "playerIds": [],
+  "storyIds": ["2026-mid-autumn-night"],
+  "tags": ["中秋", "街道", "灯笼", "夜景", "空景"],
+  "status": "draft",
+  "isMock": true,
+  "featured": true,
+  "displayVariant": "featured",
+  "comments": []
+}

@@ -1,0 +1,36 @@
+{
+  "name": "mcalbum",
+  "private": true,
+  "workspaces": [
+    "apps/web"
+  ],
+  "scripts": {
+    "sync:public-content": "python scripts/export_public_media.py",
+    "check:web-source": "python scripts/check_web_source_artifacts.py",
+    "predev:web": "npm run check:web-source && npm run sync:public-content",
+    "prebuild:web": "npm run check:web-source && npm run sync:public-content",
+    "pregenerate:web": "npm run check:web-source && npm run sync:public-content",
+    "pretypecheck:web": "npm run check:web-source && npm run sync:public-content",
+    "pretest:web": "npm run sync:public-content",
+    "validate:content": "python scripts/validate_content.py",
+    "validate:content:release": "python scripts/validate_content.py --release",
+    "import:media": "python scripts/import_media.py",
+    "snapshot:openapi": "apps\\api\\.venv\\Scripts\\python.exe scripts/export_openapi.py",
+    "api:migrate": "apps\\api\\.venv\\Scripts\\python.exe -m alembic -c apps/api/alembic.ini upgrade head",
+    "api:lint": "apps\\api\\.venv\\Scripts\\python.exe -m ruff check apps/api",
+    "api:test": "apps\\api\\.venv\\Scripts\\python.exe -m pytest apps/api",
+    "dev:web": "npm run dev --workspace @mcalbum/web",
+    "build:web": "npm run build --workspace @mcalbum/web",
+    "generate:web": "npm run generate --workspace @mcalbum/web",
+    "typecheck:web": "npm run typecheck --workspace @mcalbum/web",
+    "test:web": "npm run test --workspace @mcalbum/web",
+    "validate:static": "python scripts/validate_static_output.py",
+    "test:e2e:web": "python scripts/e2e_static.py",
+    "snapshot:release": "python scripts/create_release_manifest.py",
+    "check:web": "npm run validate:content && npm run typecheck:web && npm run test:web && npm run generate:web && npm run validate:static && npm run test:e2e:web",
+    "check:release": "npm run validate:content:release && npm run check:web && python scripts/validate_static_output.py --release && npm run snapshot:release"
+  },
+  "engines": {
+    "node": ">=22.22.3"
+  }
+}

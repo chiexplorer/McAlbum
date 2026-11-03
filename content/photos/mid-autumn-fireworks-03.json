@@ -1,0 +1,17 @@
+{
+  "$schema": "../../contracts/json-schema/photo.schema.json",
+  "id": "mid-autumn-fireworks-03",
+  "title": "烟花升起的时候",
+  "description": "粉色、紫色和绿色烟花在门楼上方铺开，三名玩家坐在树篱边看向镜头。",
+  "assetId": "media-c71c4b37e29d4893ab73c5a008e8735d",
+  "capturedAt": "2026-09-25T22:28:37+08:00",
+  "timeZone": "Asia/Shanghai",
+  "playerIds": [],
+  "storyIds": ["2026-mid-autumn-night"],
+  "tags": ["中秋", "烟花", "夜景", "合影"],
+  "status": "draft",
+  "isMock": true,
+  "featured": true,
+  "displayVariant": "featured",
+  "comments": []
+}

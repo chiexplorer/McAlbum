@@ -1,0 +1,3321 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "McAlbum API",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/health": {
+      "get": {
+        "tags": [
+          "system"
+        ],
+        "summary": "Get Health",
+        "description": "返回不依赖数据库的进程健康状态。",
+        "operationId": "get_health_api_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/public/photos": {
+      "get": {
+        "tags": [
+          "public-content"
+        ],
+        "summary": "List Public Photos",
+        "operationId": "list_public_photos_api_public_photos_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PublicPhotoEntry"
+                  },
+                  "type": "array",
+                  "title": "Response List Public Photos Api Public Photos Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/public/photos/feed": {
+      "get": {
+        "tags": [
+          "public-content"
+        ],
+        "summary": "List Public Photo Feed",
+        "description": "按拍摄时间倒序读取公开照片，使用时间与 ID 组成稳定游标。",
+        "operationId": "list_public_photo_feed_api_public_photos_feed_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 40,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "before",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Before"
+            }
+          },
+          {
+            "name": "before_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Before Id"
+            }
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "按 Asia/Shanghai 月份筛选，格式为 YYYY-MM",
+              "title": "Month"
+            },
+            "description": "按 Asia/Shanghai 月份筛选，格式为 YYYY-MM"
+          },
+          {
+            "name": "tag",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Tag"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicPhotoFeed"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/public/photos/timeline": {
+      "get": {
+        "tags": [
+          "public-content"
+        ],
+        "summary": "Get Public Photo Timeline",
+        "description": "按北京时间月份返回公开照片数量，用于月份导航。",
+        "operationId": "get_public_photo_timeline_api_public_photos_timeline_get",
+        "parameters": [
+          {
+            "name": "tag",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Tag"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PublicPhotoMonth"
+                  },
+                  "title": "Response Get Public Photo Timeline Api Public Photos Timeline Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/public/photos/{photo_id}": {
+      "get": {
+        "tags": [
+          "public-content"
+        ],
+        "summary": "Get Public Photo",
+        "operationId": "get_public_photo_api_public_photos__photo_id__get",
+        "parameters": [
+          {
+            "name": "photo_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Photo Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicPhotoDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/public/stories": {
+      "get": {
+        "tags": [
+          "public-content"
+        ],
+        "summary": "List Public Stories",
+        "operationId": "list_public_stories_api_public_stories_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PublicStoryEntry"
+                  },
+                  "type": "array",
+                  "title": "Response List Public Stories Api Public Stories Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/public/stories/{story_id}": {
+      "get": {
+        "tags": [
+          "public-content"
+        ],
+        "summary": "Get Public Story",
+        "operationId": "get_public_story_api_public_stories__story_id__get",
+        "parameters": [
+          {
+            "name": "story_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Story Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicStoryDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Login",
+        "operationId": "login_api_auth_login_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Register",
+        "operationId": "register_api_auth_register_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/session": {
+      "get": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Get Session",
+        "operationId": "get_session_api_auth_session_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Logout",
+        "operationId": "logout_api_auth_logout_post",
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Csrf-Token"
+            }
+          },
+          {
+            "name": "mcalbum_csrf",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Mcalbum Csrf"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/manage/media": {
+      "get": {
+        "tags": [
+          "media"
+        ],
+        "summary": "List Media",
+        "operationId": "list_media_api_manage_media_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MediaAssetResponse"
+                  },
+                  "title": "Response List Media Api Manage Media Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "media"
+        ],
+        "summary": "Upload Media",
+        "operationId": "upload_media_api_manage_media_post",
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Csrf-Token"
+            }
+          },
+          {
+            "name": "mcalbum_csrf",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Mcalbum Csrf"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_media_api_manage_media_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaAssetResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/manage/photos": {
+      "get": {
+        "tags": [
+          "content"
+        ],
+        "summary": "List Photos",
+        "operationId": "list_photos_api_manage_photos_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PhotoResponse"
+                  },
+                  "title": "Response List Photos Api Manage Photos Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "content"
+        ],
+        "summary": "Create Photo",
+        "operationId": "create_photo_api_manage_photos_post",
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Csrf-Token"
+            }
+          },
+          {
+            "name": "mcalbum_csrf",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Mcalbum Csrf"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PhotoWrite"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PhotoResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/manage/photos/{item_id}": {
+      "put": {
+        "tags": [
+          "content"
+        ],
+        "summary": "Update Photo",
+        "operationId": "update_photo_api_manage_photos__item_id__put",
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Item Id"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Csrf-Token"
+            }
+          },
+          {
+            "name": "mcalbum_csrf",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Mcalbum Csrf"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PhotoWrite"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PhotoResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/manage/photos/{item_id}/transition": {
+      "post": {
+        "tags": [
+          "content"
+        ],
+        "summary": "Transition Photo",
+        "operationId": "transition_photo_api_manage_photos__item_id__transition_post",
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Item Id"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Csrf-Token"
+            }
+          },
+          {
+            "name": "mcalbum_csrf",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Mcalbum Csrf"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransitionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PhotoResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/manage/stories": {
+      "get": {
+        "tags": [
+          "content"
+        ],
+        "summary": "List Stories",
+        "operationId": "list_stories_api_manage_stories_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StoryResponse"
+                  },
+                  "title": "Response List Stories Api Manage Stories Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "content"
+        ],
+        "summary": "Create Story",
+        "operationId": "create_story_api_manage_stories_post",
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Csrf-Token"
+            }
+          },
+          {
+            "name": "mcalbum_csrf",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Mcalbum Csrf"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StoryWrite"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StoryResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/manage/stories/{item_id}": {
+      "put": {
+        "tags": [
+          "content"
+        ],
+        "summary": "Update Story",
+        "operationId": "update_story_api_manage_stories__item_id__put",
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Item Id"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Csrf-Token"
+            }
+          },
+          {
+            "name": "mcalbum_csrf",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Mcalbum Csrf"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StoryWrite"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StoryResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/manage/stories/{item_id}/transition": {
+      "post": {
+        "tags": [
+          "content"
+        ],
+        "summary": "Transition Story",
+        "operationId": "transition_story_api_manage_stories__item_id__transition_post",
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Item Id"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Csrf-Token"
+            }
+          },
+          {
+            "name": "mcalbum_csrf",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Mcalbum Csrf"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransitionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StoryResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/manage/profile": {
+      "get": {
+        "tags": [
+          "profile"
+        ],
+        "summary": "Get Profile",
+        "operationId": "get_profile_api_manage_profile_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerProfile"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "profile"
+        ],
+        "summary": "Update Profile",
+        "operationId": "update_profile_api_manage_profile_put",
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Csrf-Token"
+            }
+          },
+          {
+            "name": "mcalbum_csrf",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Mcalbum Csrf"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlayerProfileUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerProfile"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/comments/photo/{photo_id}": {
+      "get": {
+        "tags": [
+          "comments"
+        ],
+        "summary": "List Comments",
+        "operationId": "list_comments_api_comments_photo__photo_id__get",
+        "parameters": [
+          {
+            "name": "photo_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Photo Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CommentResponse"
+                  },
+                  "title": "Response List Comments Api Comments Photo  Photo Id  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "comments"
+        ],
+        "summary": "Create Comment",
+        "operationId": "create_comment_api_comments_photo__photo_id__post",
+        "parameters": [
+          {
+            "name": "photo_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Photo Id"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Csrf-Token"
+            }
+          },
+          {
+            "name": "mcalbum_csrf",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Mcalbum Csrf"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommentCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommentResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/comments/{comment_id}/moderate": {
+      "post": {
+        "tags": [
+          "comments"
+        ],
+        "summary": "Moderate Comment",
+        "operationId": "moderate_comment_api_comments__comment_id__moderate_post",
+        "parameters": [
+          {
+            "name": "comment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comment Id"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Csrf-Token"
+            }
+          },
+          {
+            "name": "mcalbum_csrf",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Mcalbum Csrf"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommentModeration"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommentResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/invitations": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Create Invitation",
+        "operationId": "create_invitation_api_admin_invitations_post",
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Csrf-Token"
+            }
+          },
+          {
+            "name": "mcalbum_csrf",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Mcalbum Csrf"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvitationCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvitationCreated"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/users": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "List Users",
+        "operationId": "list_users_api_admin_users_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/UserSummary"
+                  },
+                  "type": "array",
+                  "title": "Response List Users Api Admin Users Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/users/{user_id}/permissions": {
+      "put": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Update Permissions",
+        "operationId": "update_permissions_api_admin_users__user_id__permissions_put",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "User Id"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Csrf-Token"
+            }
+          },
+          {
+            "name": "mcalbum_csrf",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Mcalbum Csrf"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserPermissionUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionUser"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/users/{user_id}/status": {
+      "put": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Update User Status",
+        "operationId": "update_user_status_api_admin_users__user_id__status_put",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "User Id"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Csrf-Token"
+            }
+          },
+          {
+            "name": "mcalbum_csrf",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Mcalbum Csrf"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserStatusUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/audit": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "List Audit",
+        "operationId": "list_audit_api_admin_audit_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "type": "array",
+                  "title": "Response List Audit Api Admin Audit Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/comments": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "List All Comments",
+        "operationId": "list_all_comments_api_admin_comments_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "type": "array",
+                  "title": "Response List All Comments Api Admin Comments Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/publish": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Publish Snapshot",
+        "operationId": "publish_snapshot_api_admin_publish_post",
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Csrf-Token"
+            }
+          },
+          {
+            "name": "mcalbum_csrf",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Mcalbum Csrf"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Publish Snapshot Api Admin Publish Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Body_upload_media_api_manage_media_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "File"
+          },
+          "alt_text": {
+            "type": "string",
+            "title": "Alt Text"
+          },
+          "captured_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Captured At"
+          },
+          "focal_x": {
+            "type": "number",
+            "title": "Focal X",
+            "default": 0.5
+          },
+          "focal_y": {
+            "type": "number",
+            "title": "Focal Y",
+            "default": 0.5
+          }
+        },
+        "type": "object",
+        "required": [
+          "file",
+          "alt_text",
+          "captured_at"
+        ],
+        "title": "Body_upload_media_api_manage_media_post"
+      },
+      "CommentCreate": {
+        "properties": {
+          "body": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Body"
+          }
+        },
+        "type": "object",
+        "required": [
+          "body"
+        ],
+        "title": "CommentCreate"
+      },
+      "CommentModeration": {
+        "properties": {
+          "hidden": {
+            "type": "boolean",
+            "title": "Hidden"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "hidden"
+        ],
+        "title": "CommentModeration"
+      },
+      "CommentResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "photo_id": {
+            "type": "string",
+            "title": "Photo Id"
+          },
+          "author_user_id": {
+            "type": "string",
+            "title": "Author User Id"
+          },
+          "body": {
+            "type": "string",
+            "title": "Body"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "published",
+              "hidden"
+            ],
+            "title": "Status"
+          },
+          "hidden_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hidden Reason"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "photo_id",
+          "author_user_id",
+          "body",
+          "status",
+          "hidden_reason",
+          "created_at"
+        ],
+        "title": "CommentResponse"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HealthResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "service": {
+            "type": "string",
+            "title": "Service"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "service"
+        ],
+        "title": "HealthResponse",
+        "description": "API 进程健康状态。"
+      },
+      "InvitationCreate": {
+        "properties": {
+          "expires_in_hours": {
+            "type": "integer",
+            "maximum": 720.0,
+            "minimum": 1.0,
+            "title": "Expires In Hours",
+            "default": 72
+          },
+          "permissions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "title": "Permissions"
+          }
+        },
+        "type": "object",
+        "title": "InvitationCreate"
+      },
+      "InvitationCreated": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "expires_at"
+        ],
+        "title": "InvitationCreated"
+      },
+      "LoginRequest": {
+        "properties": {
+          "username": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 3,
+            "title": "Username"
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 10,
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "username",
+          "password"
+        ],
+        "title": "LoginRequest"
+      },
+      "MediaAssetResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "alt_text": {
+            "type": "string",
+            "title": "Alt Text"
+          },
+          "captured_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Captured At"
+          },
+          "focal_x": {
+            "type": "number",
+            "title": "Focal X"
+          },
+          "focal_y": {
+            "type": "number",
+            "title": "Focal Y"
+          },
+          "width": {
+            "type": "integer",
+            "title": "Width"
+          },
+          "height": {
+            "type": "integer",
+            "title": "Height"
+          },
+          "processing_status": {
+            "type": "string",
+            "title": "Processing Status"
+          },
+          "editorial_status": {
+            "type": "string",
+            "title": "Editorial Status"
+          },
+          "variants": {
+            "items": {
+              "$ref": "#/components/schemas/MediaVariantResponse"
+            },
+            "type": "array",
+            "title": "Variants"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "alt_text",
+          "captured_at",
+          "focal_x",
+          "focal_y",
+          "width",
+          "height",
+          "processing_status",
+          "editorial_status",
+          "variants"
+        ],
+        "title": "MediaAssetResponse"
+      },
+      "MediaVariantResponse": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "width": {
+            "type": "integer",
+            "title": "Width"
+          },
+          "height": {
+            "type": "integer",
+            "title": "Height"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "url",
+          "width",
+          "height"
+        ],
+        "title": "MediaVariantResponse"
+      },
+      "PhotoResponse": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Title"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 10000,
+            "title": "Description",
+            "default": ""
+          },
+          "asset_id": {
+            "type": "string",
+            "title": "Asset Id"
+          },
+          "captured_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Captured At"
+          },
+          "photographer_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Photographer Id"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 30,
+            "title": "Tags"
+          },
+          "player_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Player Ids"
+          },
+          "story_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Story Ids"
+          },
+          "featured": {
+            "type": "boolean",
+            "title": "Featured",
+            "default": false
+          },
+          "display_variant": {
+            "type": "string",
+            "enum": [
+              "featured",
+              "normal",
+              "portrait",
+              "note"
+            ],
+            "title": "Display Variant",
+            "default": "normal"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "pending",
+              "published",
+              "rejected",
+              "archived"
+            ],
+            "title": "Status"
+          },
+          "author_user_id": {
+            "type": "string",
+            "title": "Author User Id"
+          },
+          "rejection_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rejection Reason"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title",
+          "asset_id",
+          "captured_at",
+          "id",
+          "status",
+          "author_user_id",
+          "rejection_reason",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "PhotoResponse"
+      },
+      "PhotoWrite": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Title"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 10000,
+            "title": "Description",
+            "default": ""
+          },
+          "asset_id": {
+            "type": "string",
+            "title": "Asset Id"
+          },
+          "captured_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Captured At"
+          },
+          "photographer_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Photographer Id"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 30,
+            "title": "Tags"
+          },
+          "player_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Player Ids"
+          },
+          "story_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Story Ids"
+          },
+          "featured": {
+            "type": "boolean",
+            "title": "Featured",
+            "default": false
+          },
+          "display_variant": {
+            "type": "string",
+            "enum": [
+              "featured",
+              "normal",
+              "portrait",
+              "note"
+            ],
+            "title": "Display Variant",
+            "default": "normal"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title",
+          "asset_id",
+          "captured_at"
+        ],
+        "title": "PhotoWrite"
+      },
+      "PlayerProfile": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "bio": {
+            "type": "string",
+            "maxLength": 4000,
+            "title": "Bio"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "resident",
+              "historical",
+              "private"
+            ],
+            "title": "Status"
+          },
+          "joined_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Joined At"
+          },
+          "avatar_asset_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avatar Asset Id"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "work_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Work Ids"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "bio",
+          "status",
+          "id",
+          "work_ids"
+        ],
+        "title": "PlayerProfile"
+      },
+      "PlayerProfileUpdate": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "bio": {
+            "type": "string",
+            "maxLength": 4000,
+            "title": "Bio"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "resident",
+              "historical",
+              "private"
+            ],
+            "title": "Status"
+          },
+          "joined_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Joined At"
+          },
+          "avatar_asset_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avatar Asset Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "bio",
+          "status"
+        ],
+        "title": "PlayerProfileUpdate"
+      },
+      "PublicComment": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "authorPlayerId": {
+            "type": "string",
+            "title": "Authorplayerid"
+          },
+          "body": {
+            "type": "string",
+            "title": "Body"
+          },
+          "status": {
+            "type": "string",
+            "const": "published",
+            "title": "Status",
+            "default": "published"
+          },
+          "createdAt": {
+            "type": "string",
+            "title": "Createdat"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "authorPlayerId",
+          "body",
+          "createdAt"
+        ],
+        "title": "PublicComment"
+      },
+      "PublicFocalPoint": {
+        "properties": {
+          "x": {
+            "type": "number",
+            "title": "X"
+          },
+          "y": {
+            "type": "number",
+            "title": "Y"
+          }
+        },
+        "type": "object",
+        "required": [
+          "x",
+          "y"
+        ],
+        "title": "PublicFocalPoint"
+      },
+      "PublicMediaAsset": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "altText": {
+            "type": "string",
+            "title": "Alttext"
+          },
+          "focalPoint": {
+            "$ref": "#/components/schemas/PublicFocalPoint"
+          },
+          "variants": {
+            "items": {
+              "$ref": "#/components/schemas/PublicMediaVariant"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Variants"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "altText",
+          "focalPoint",
+          "variants"
+        ],
+        "title": "PublicMediaAsset"
+      },
+      "PublicMediaVariant": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "storageKey": {
+            "type": "string",
+            "title": "Storagekey"
+          },
+          "mimeType": {
+            "type": "string",
+            "const": "image/webp",
+            "title": "Mimetype"
+          },
+          "byteSize": {
+            "type": "integer",
+            "title": "Bytesize"
+          },
+          "width": {
+            "type": "integer",
+            "title": "Width"
+          },
+          "height": {
+            "type": "integer",
+            "title": "Height"
+          },
+          "sha256": {
+            "type": "string",
+            "title": "Sha256"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "storageKey",
+          "mimeType",
+          "byteSize",
+          "width",
+          "height",
+          "sha256"
+        ],
+        "title": "PublicMediaVariant"
+      },
+      "PublicPhoto": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "assetId": {
+            "type": "string",
+            "title": "Assetid"
+          },
+          "capturedAt": {
+            "type": "string",
+            "title": "Capturedat"
+          },
+          "timeZone": {
+            "type": "string",
+            "const": "Asia/Shanghai",
+            "title": "Timezone",
+            "default": "Asia/Shanghai"
+          },
+          "photographerId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Photographerid"
+          },
+          "playerIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Playerids"
+          },
+          "storyIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Storyids"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tags"
+          },
+          "status": {
+            "type": "string",
+            "const": "published",
+            "title": "Status",
+            "default": "published"
+          },
+          "isMock": {
+            "type": "boolean",
+            "const": false,
+            "title": "Ismock",
+            "default": false
+          },
+          "featured": {
+            "type": "boolean",
+            "title": "Featured"
+          },
+          "displayVariant": {
+            "type": "string",
+            "enum": [
+              "featured",
+              "normal",
+              "portrait",
+              "note"
+            ],
+            "title": "Displayvariant"
+          },
+          "comments": {
+            "items": {
+              "$ref": "#/components/schemas/PublicComment"
+            },
+            "type": "array",
+            "title": "Comments"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "description",
+          "assetId",
+          "capturedAt",
+          "tags",
+          "featured",
+          "displayVariant"
+        ],
+        "title": "PublicPhoto"
+      },
+      "PublicPhotoCursor": {
+        "properties": {
+          "capturedAt": {
+            "type": "string",
+            "title": "Capturedat"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "capturedAt",
+          "id"
+        ],
+        "title": "PublicPhotoCursor",
+        "description": "下一页的拍摄时间与稳定 ID 游标。"
+      },
+      "PublicPhotoDetail": {
+        "properties": {
+          "photo": {
+            "$ref": "#/components/schemas/PublicPhoto"
+          },
+          "asset": {
+            "$ref": "#/components/schemas/PublicMediaAsset"
+          },
+          "stories": {
+            "items": {
+              "$ref": "#/components/schemas/PublicStory"
+            },
+            "type": "array",
+            "title": "Stories"
+          },
+          "relatedPhotos": {
+            "items": {
+              "$ref": "#/components/schemas/PublicPhotoEntry"
+            },
+            "type": "array",
+            "title": "Relatedphotos"
+          }
+        },
+        "type": "object",
+        "required": [
+          "photo",
+          "asset"
+        ],
+        "title": "PublicPhotoDetail"
+      },
+      "PublicPhotoEntry": {
+        "properties": {
+          "photo": {
+            "$ref": "#/components/schemas/PublicPhoto"
+          },
+          "asset": {
+            "$ref": "#/components/schemas/PublicMediaAsset"
+          }
+        },
+        "type": "object",
+        "required": [
+          "photo",
+          "asset"
+        ],
+        "title": "PublicPhotoEntry"
+      },
+      "PublicPhotoFeed": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PublicPhotoEntry"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "nextCursor": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PublicPhotoCursor"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "hasMore": {
+            "type": "boolean",
+            "title": "Hasmore"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "hasMore"
+        ],
+        "title": "PublicPhotoFeed",
+        "description": "按拍摄时间倒序返回的一页公开照片。"
+      },
+      "PublicPhotoMonth": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^\\d{4}-(0[1-9]|1[0-2])$",
+            "title": "Key"
+          },
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "month": {
+            "type": "integer",
+            "maximum": 12.0,
+            "minimum": 1.0,
+            "title": "Month"
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "year",
+          "month",
+          "count"
+        ],
+        "title": "PublicPhotoMonth",
+        "description": "按北京时间归档的单个月份及公开照片数量。"
+      },
+      "PublicStory": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "coverAssetId": {
+            "type": "string",
+            "title": "Coverassetid"
+          },
+          "playerIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Playerids"
+          },
+          "sections": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Sections"
+          },
+          "status": {
+            "type": "string",
+            "const": "published",
+            "title": "Status",
+            "default": "published"
+          },
+          "isMock": {
+            "type": "boolean",
+            "const": false,
+            "title": "Ismock",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "summary",
+          "coverAssetId",
+          "sections"
+        ],
+        "title": "PublicStory"
+      },
+      "PublicStoryDetail": {
+        "properties": {
+          "story": {
+            "$ref": "#/components/schemas/PublicStory"
+          },
+          "assets": {
+            "items": {
+              "$ref": "#/components/schemas/PublicMediaAsset"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Assets"
+          }
+        },
+        "type": "object",
+        "required": [
+          "story",
+          "assets"
+        ],
+        "title": "PublicStoryDetail"
+      },
+      "PublicStoryEntry": {
+        "properties": {
+          "story": {
+            "$ref": "#/components/schemas/PublicStory"
+          },
+          "coverAsset": {
+            "$ref": "#/components/schemas/PublicMediaAsset"
+          }
+        },
+        "type": "object",
+        "required": [
+          "story",
+          "coverAsset"
+        ],
+        "title": "PublicStoryEntry"
+      },
+      "RegisterRequest": {
+        "properties": {
+          "username": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 3,
+            "title": "Username"
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 10,
+            "title": "Password"
+          },
+          "display_name": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Display Name"
+          },
+          "invitation_code": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 20,
+            "title": "Invitation Code"
+          }
+        },
+        "type": "object",
+        "required": [
+          "username",
+          "password",
+          "display_name",
+          "invitation_code"
+        ],
+        "title": "RegisterRequest"
+      },
+      "SessionResponse": {
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/SessionUser"
+          },
+          "csrf_token": {
+            "type": "string",
+            "title": "Csrf Token"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user",
+          "csrf_token",
+          "expires_at"
+        ],
+        "title": "SessionResponse"
+      },
+      "SessionUser": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "username": {
+            "type": "string",
+            "title": "Username"
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name"
+          },
+          "role": {
+            "type": "string",
+            "title": "Role"
+          },
+          "player_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Player Id"
+          },
+          "permissions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Permissions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "username",
+          "display_name",
+          "role",
+          "player_id",
+          "permissions"
+        ],
+        "title": "SessionUser"
+      },
+      "StoryResponse": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Title"
+          },
+          "summary": {
+            "type": "string",
+            "maxLength": 10000,
+            "minLength": 1,
+            "title": "Summary"
+          },
+          "cover_asset_id": {
+            "type": "string",
+            "title": "Cover Asset Id"
+          },
+          "sections": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Sections"
+          },
+          "player_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Player Ids"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "pending",
+              "published",
+              "rejected",
+              "archived"
+            ],
+            "title": "Status"
+          },
+          "author_user_id": {
+            "type": "string",
+            "title": "Author User Id"
+          },
+          "rejection_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rejection Reason"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title",
+          "summary",
+          "cover_asset_id",
+          "sections",
+          "id",
+          "status",
+          "author_user_id",
+          "rejection_reason",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "StoryResponse"
+      },
+      "StoryWrite": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Title"
+          },
+          "summary": {
+            "type": "string",
+            "maxLength": 10000,
+            "minLength": 1,
+            "title": "Summary"
+          },
+          "cover_asset_id": {
+            "type": "string",
+            "title": "Cover Asset Id"
+          },
+          "sections": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Sections"
+          },
+          "player_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Player Ids"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title",
+          "summary",
+          "cover_asset_id",
+          "sections"
+        ],
+        "title": "StoryWrite"
+      },
+      "TransitionRequest": {
+        "properties": {
+          "target_status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "published",
+              "rejected",
+              "archived"
+            ],
+            "title": "Target Status"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "target_status"
+        ],
+        "title": "TransitionRequest"
+      },
+      "UserPermissionUpdate": {
+        "properties": {
+          "permissions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "title": "Permissions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "permissions"
+        ],
+        "title": "UserPermissionUpdate"
+      },
+      "UserStatusUpdate": {
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled"
+          }
+        },
+        "type": "object",
+        "required": [
+          "enabled"
+        ],
+        "title": "UserStatusUpdate"
+      },
+      "UserSummary": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "username": {
+            "type": "string",
+            "title": "Username"
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name"
+          },
+          "role": {
+            "type": "string",
+            "title": "Role"
+          },
+          "player_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Player Id"
+          },
+          "permissions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Permissions"
+          },
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "username",
+          "display_name",
+          "role",
+          "player_id",
+          "permissions",
+          "enabled",
+          "created_at"
+        ],
+        "title": "UserSummary"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

@@ -1,0 +1,1433 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>McAlbum 数据表设计蓝图</title>
+  <style>
+    :root {
+      --blueprint: #0a2533;
+      --blueprint-deep: #061a24;
+      --cyan: #4cc9c0;
+      --paper: #eaf1f2;
+      --paper-bright: #f7faf9;
+      --amber: #f2b45b;
+      --coral: #d96a62;
+      --ink: #142127;
+      --muted: #5d7077;
+      --line: #c5d3d5;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      --sans: Inter, "Noto Sans SC", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
+      --shadow: 0 18px 50px rgb(6 26 36 / 12%);
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      background: var(--paper);
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(rgb(10 37 51 / 3%) 1px, transparent 1px),
+        linear-gradient(90deg, rgb(10 37 51 / 3%) 1px, transparent 1px),
+        var(--paper);
+      background-size: 28px 28px;
+      font-family: var(--sans);
+      line-height: 1.6;
+    }
+
+    button, input { font: inherit; }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    button:focus-visible,
+    input:focus-visible,
+    summary:focus-visible,
+    a:focus-visible {
+      outline: 3px solid var(--amber);
+      outline-offset: 3px;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 64px max(24px, calc((100vw - 1260px) / 2)) 52px;
+      color: var(--paper-bright);
+      background: var(--blueprint);
+      border-bottom: 6px solid var(--cyan);
+    }
+
+    .hero::before,
+    .hero::after {
+      position: absolute;
+      content: "";
+      pointer-events: none;
+    }
+
+    .hero::before {
+      inset: 0;
+      opacity: .16;
+      background:
+        linear-gradient(rgb(255 255 255 / 24%) 1px, transparent 1px),
+        linear-gradient(90deg, rgb(255 255 255 / 24%) 1px, transparent 1px);
+      background-size: 32px 32px;
+      mask-image: linear-gradient(to right, black, transparent 80%);
+    }
+
+    .hero::after {
+      width: 380px;
+      height: 380px;
+      right: -130px;
+      top: -150px;
+      border: 1px solid rgb(76 201 192 / 45%);
+      border-radius: 50%;
+      box-shadow: 0 0 0 48px rgb(76 201 192 / 5%), 0 0 0 96px rgb(76 201 192 / 4%);
+    }
+
+    .hero-inner,
+    main,
+    footer {
+      width: min(1260px, calc(100% - 40px));
+      margin-inline: auto;
+    }
+
+    .hero-inner { position: relative; z-index: 1; }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: var(--cyan);
+      font-family: var(--mono);
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      max-width: 820px;
+      margin: 0;
+      font-size: clamp(2.4rem, 7vw, 5.8rem);
+      font-weight: 780;
+      letter-spacing: -.055em;
+      line-height: .98;
+    }
+
+    .hero-copy {
+      max-width: 720px;
+      margin: 24px 0 0;
+      color: #bdd0d5;
+      font-size: clamp(1rem, 2vw, 1.18rem);
+    }
+
+    .snapshot {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1px;
+      max-width: 840px;
+      margin-top: 36px;
+      background: rgb(255 255 255 / 18%);
+      border: 1px solid rgb(255 255 255 / 18%);
+    }
+
+    .metric {
+      min-height: 92px;
+      padding: 15px 17px;
+      background: rgb(6 26 36 / 78%);
+    }
+
+    .metric strong {
+      display: block;
+      color: #fff;
+      font-family: var(--mono);
+      font-size: 1.55rem;
+      line-height: 1.25;
+    }
+
+    .metric span {
+      display: block;
+      margin-top: 7px;
+      color: #8fb0b7;
+      font-size: .78rem;
+    }
+
+    main { padding-block: 58px 84px; }
+
+    .section {
+      margin-top: 68px;
+      scroll-margin-top: 24px;
+    }
+
+    .section:first-child { margin-top: 0; }
+
+    .section-heading {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 520px);
+      gap: 36px;
+      align-items: end;
+      margin-bottom: 24px;
+    }
+
+    .section-number {
+      display: block;
+      color: var(--coral);
+      font-family: var(--mono);
+      font-size: .8rem;
+      font-weight: 700;
+      letter-spacing: .14em;
+    }
+
+    h2 {
+      margin: 5px 0 0;
+      color: var(--blueprint);
+      font-size: clamp(1.75rem, 4vw, 3rem);
+      letter-spacing: -.035em;
+      line-height: 1.08;
+    }
+
+    .section-heading p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .blueprint-shell {
+      overflow: hidden;
+      color: #dce8e9;
+      background: var(--blueprint);
+      border: 1px solid var(--blueprint-deep);
+      box-shadow: var(--shadow);
+    }
+
+    .map-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 22px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      background: var(--blueprint-deep);
+      border-bottom: 1px solid rgb(255 255 255 / 12%);
+    }
+
+    .legend,
+    .map-instruction {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 16px;
+      align-items: center;
+      margin: 0;
+      font-size: .75rem;
+    }
+
+    .legend span { display: inline-flex; align-items: center; gap: 6px; }
+
+    .legend i {
+      width: 22px;
+      height: 2px;
+      background: var(--cyan);
+    }
+
+    .legend .cascade { background: var(--coral); }
+    .legend .set-null { background: var(--amber); }
+    .map-instruction { color: #91abb1; }
+
+    .map-scroll {
+      overflow-x: auto;
+      scrollbar-color: var(--cyan) var(--blueprint-deep);
+    }
+
+    .schema-map {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1.15fr .72fr 1.25fr 1fr;
+      gap: 28px;
+      min-width: 1080px;
+      min-height: 650px;
+      padding: 32px;
+      isolation: isolate;
+      background:
+        linear-gradient(rgb(255 255 255 / 6%) 1px, transparent 1px),
+        linear-gradient(90deg, rgb(255 255 255 / 6%) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+
+    .relation-svg {
+      position: absolute;
+      z-index: 0;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      pointer-events: none;
+    }
+
+    .relation-path {
+      fill: none;
+      stroke: var(--cyan);
+      stroke-width: 1.5;
+      opacity: .26;
+      vector-effect: non-scaling-stroke;
+      transition: opacity .18s ease, stroke-width .18s ease;
+    }
+
+    .relation-path[data-delete="CASCADE"] { stroke: var(--coral); }
+    .relation-path[data-delete="SET NULL"] { stroke: var(--amber); }
+    .relation-path.is-active { stroke-width: 3; opacity: .95; }
+    .relation-path.is-muted { opacity: .04; }
+
+    .domain-column {
+      position: relative;
+      z-index: 1;
+      align-self: start;
+      padding: 13px;
+      background: rgb(6 26 36 / 82%);
+      border: 1px solid rgb(255 255 255 / 13%);
+    }
+
+    .domain-title {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin: 0 0 11px;
+      color: #89a9af;
+      font-family: var(--mono);
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .11em;
+      text-transform: uppercase;
+    }
+
+    .domain-title::before {
+      width: 7px;
+      height: 7px;
+      content: "";
+      background: var(--cyan);
+      box-shadow: 4px 4px 0 rgb(76 201 192 / 25%);
+    }
+
+    .node-stack { display: grid; gap: 9px; }
+
+    .table-node {
+      position: relative;
+      width: 100%;
+      padding: 11px 12px;
+      color: #edf6f5;
+      text-align: left;
+      cursor: pointer;
+      background: #103747;
+      border: 1px solid #2d5664;
+      border-radius: 2px;
+      box-shadow: 0 4px 12px rgb(0 0 0 / 12%);
+      transition: border-color .18s ease, background .18s ease, transform .18s ease;
+    }
+
+    .table-node:hover,
+    .table-node.is-active {
+      z-index: 2;
+      background: #17495a;
+      border-color: var(--cyan);
+      transform: translateY(-2px);
+    }
+
+    .table-node.is-related { border-color: rgb(76 201 192 / 62%); }
+    .table-node.is-muted { opacity: .38; }
+
+    .table-node strong {
+      display: block;
+      overflow: hidden;
+      font-family: var(--mono);
+      font-size: .82rem;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .table-node span {
+      display: block;
+      margin-top: 3px;
+      color: #87a9b0;
+      font-size: .7rem;
+    }
+
+    .table-node b {
+      position: absolute;
+      right: 10px;
+      top: 11px;
+      color: var(--amber);
+      font-family: var(--mono);
+      font-size: .64rem;
+      font-weight: 500;
+    }
+
+    .relationship-ledger {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1px;
+      background: rgb(255 255 255 / 12%);
+      border-top: 1px solid rgb(255 255 255 / 12%);
+    }
+
+    .relation-entry {
+      min-width: 0;
+      padding: 12px 15px;
+      cursor: pointer;
+      background: #0b2b39;
+      border: 0;
+      border-radius: 0;
+      color: #b9cdd1;
+      text-align: left;
+    }
+
+    .relation-entry:hover { background: #123b4a; }
+    .relation-entry code { color: #fff; font-family: var(--mono); font-size: .72rem; }
+    .relation-entry small { display: block; color: #769ba3; }
+    .delete-rule { color: var(--coral); }
+    .delete-rule.set-null { color: var(--amber); }
+
+    .scope-note {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 16px;
+      align-items: start;
+      margin-top: 18px;
+      padding: 17px 19px;
+      background: #fff8e8;
+      border-left: 4px solid var(--amber);
+    }
+
+    .scope-note strong { color: #80520d; font-family: var(--mono); }
+    .scope-note p { margin: 0; color: #665942; }
+
+    .detail-controls {
+      position: sticky;
+      z-index: 10;
+      top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 16px;
+      padding: 12px;
+      background: rgb(234 241 242 / 94%);
+      border: 1px solid var(--line);
+      box-shadow: 0 10px 30px rgb(6 26 36 / 8%);
+      backdrop-filter: blur(12px);
+    }
+
+    .search-wrap { position: relative; flex: 1 1 320px; }
+
+    .search-wrap::before {
+      position: absolute;
+      left: 13px;
+      top: 50%;
+      content: "⌕";
+      color: var(--muted);
+      font-size: 1.3rem;
+      transform: translateY(-53%);
+    }
+
+    #table-search {
+      width: 100%;
+      min-height: 43px;
+      padding: 9px 46px 9px 38px;
+      color: var(--ink);
+      background: #fff;
+      border: 1px solid #aabdc1;
+      border-radius: 0;
+    }
+
+    .key-hint {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      padding: 1px 6px;
+      color: #72878c;
+      font-family: var(--mono);
+      font-size: .68rem;
+      border: 1px solid #cad6d8;
+      transform: translateY(-50%);
+    }
+
+    .control-button {
+      min-height: 43px;
+      padding: 8px 13px;
+      color: var(--blueprint);
+      cursor: pointer;
+      background: transparent;
+      border: 1px solid #9eb3b7;
+      border-radius: 0;
+    }
+
+    .control-button:hover { color: #fff; background: var(--blueprint); }
+
+    .filter-set {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .filter-button {
+      padding: 7px 10px;
+      color: var(--muted);
+      cursor: pointer;
+      background: transparent;
+      border: 0;
+      border-bottom: 2px solid transparent;
+    }
+
+    .filter-button[aria-pressed="true"] {
+      color: var(--blueprint);
+      border-bottom-color: var(--cyan);
+      font-weight: 700;
+    }
+
+    #result-count {
+      min-width: 5.5em;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: .75rem;
+      text-align: right;
+    }
+
+    .table-details {
+      display: grid;
+      gap: 12px;
+    }
+
+    .table-card {
+      scroll-margin-top: 92px;
+      background: var(--paper-bright);
+      border: 1px solid var(--line);
+      box-shadow: 0 7px 20px rgb(6 26 36 / 5%);
+    }
+
+    .table-card[open] { border-color: #88a8ad; box-shadow: var(--shadow); }
+
+    .table-card.is-flash {
+      animation: flash-border 1.2s ease;
+    }
+
+    @keyframes flash-border {
+      0%, 100% { box-shadow: var(--shadow); }
+      28% { box-shadow: 0 0 0 5px rgb(76 201 192 / 28%), var(--shadow); }
+    }
+
+    .table-card summary {
+      display: grid;
+      grid-template-columns: minmax(190px, 1fr) minmax(220px, 1.35fr) auto;
+      gap: 18px;
+      align-items: center;
+      min-height: 78px;
+      padding: 16px 20px;
+      cursor: pointer;
+      list-style: none;
+    }
+
+    .table-card summary::-webkit-details-marker { display: none; }
+
+    .table-card summary::after {
+      width: 28px;
+      height: 28px;
+      content: "+";
+      color: var(--blueprint);
+      font-family: var(--mono);
+      font-size: 1.25rem;
+      line-height: 26px;
+      text-align: center;
+      border: 1px solid #9bb0b4;
+    }
+
+    .table-card[open] summary::after { content: "−"; color: #fff; background: var(--blueprint); }
+
+    .table-name {
+      display: block;
+      color: var(--blueprint);
+      font-family: var(--mono);
+      font-size: 1rem;
+      font-weight: 800;
+    }
+
+    .table-label {
+      display: block;
+      margin-top: 3px;
+      color: var(--coral);
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+    }
+
+    .table-purpose { color: var(--muted); font-size: .88rem; }
+
+    .summary-meta {
+      display: flex;
+      gap: 6px;
+      justify-content: flex-end;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 2px 7px;
+      color: #4d656b;
+      background: #e4edef;
+      font-family: var(--mono);
+      font-size: .66rem;
+      white-space: nowrap;
+    }
+
+    .badge.business { color: #125e5b; background: #d8efec; }
+    .badge.link { color: #8c5313; background: #f9e8cd; }
+    .badge.system { color: #684c70; background: #eee4f0; }
+
+    .table-card-body { padding: 0 20px 24px; border-top: 1px solid var(--line); }
+
+    .design-notes {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1px;
+      margin: 18px 0;
+      background: var(--line);
+      border: 1px solid var(--line);
+    }
+
+    .design-note { padding: 13px 15px; background: #eef4f4; }
+    .design-note strong { display: block; color: var(--muted); font-size: .68rem; letter-spacing: .08em; }
+    .design-note span { display: block; margin-top: 5px; font-size: .84rem; }
+
+    .subheading {
+      margin: 22px 0 9px;
+      color: var(--blueprint);
+      font-size: .82rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .relation-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+
+    .relation-chip {
+      padding: 5px 8px;
+      color: #2e5e68;
+      cursor: pointer;
+      background: #e3eeee;
+      border: 1px solid #bfd2d4;
+      font-family: var(--mono);
+      font-size: .7rem;
+    }
+
+    .relation-chip:hover { color: #fff; background: var(--blueprint); }
+
+    .field-table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+    }
+
+    .field-table {
+      width: 100%;
+      min-width: 800px;
+      border-collapse: collapse;
+      font-size: .82rem;
+    }
+
+    .field-table th {
+      padding: 9px 11px;
+      color: #dce8e9;
+      background: var(--blueprint);
+      font-size: .7rem;
+      letter-spacing: .06em;
+      text-align: left;
+    }
+
+    .field-table td {
+      padding: 9px 11px;
+      vertical-align: top;
+      border-bottom: 1px solid #d9e2e3;
+    }
+
+    .field-table tbody tr:last-child td { border-bottom: 0; }
+    .field-table tbody tr:hover { background: #eef6f5; }
+    .field-table code { color: #0a5f69; font-family: var(--mono); font-size: .76rem; }
+    .field-table .type { color: #714a12; }
+    .null-yes { color: #9b5b21; }
+    .null-no { color: #286a67; }
+    .key { display: inline-block; margin: 0 4px 3px 0; padding: 1px 5px; font-family: var(--mono); font-size: .63rem; }
+    .key.pk { color: #fff; background: var(--blueprint); }
+    .key.fk { color: #694006; background: #f6d99f; }
+    .key.uq { color: #864943; background: #f4d7d3; }
+
+    .constraint-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px 22px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .constraint-list li {
+      position: relative;
+      padding-left: 16px;
+      color: var(--muted);
+      font-size: .8rem;
+    }
+
+    .constraint-list li::before {
+      position: absolute;
+      left: 0;
+      top: .68em;
+      width: 6px;
+      height: 6px;
+      content: "";
+      background: var(--cyan);
+    }
+
+    .empty-state {
+      padding: 38px;
+      color: var(--muted);
+      text-align: center;
+      border: 1px dashed #9fb3b7;
+    }
+
+    .conventions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 22px;
+    }
+
+    .convention {
+      padding: 19px;
+      background: #f8fbfa;
+      border-top: 3px solid var(--cyan);
+    }
+
+    .convention strong { color: var(--blueprint); }
+    .convention p { margin: 7px 0 0; color: var(--muted); font-size: .86rem; }
+    .convention code { font-family: var(--mono); font-size: .78rem; }
+
+    footer {
+      display: flex;
+      gap: 24px;
+      justify-content: space-between;
+      padding-block: 26px 38px;
+      color: var(--muted);
+      font-size: .75rem;
+      border-top: 1px solid #b8c8ca;
+    }
+
+    footer code { font-family: var(--mono); }
+
+    @media (max-width: 820px) {
+      .hero { padding-top: 44px; }
+      .snapshot { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .section-heading { grid-template-columns: 1fr; gap: 12px; }
+      .relationship-ledger { grid-template-columns: 1fr; }
+      .table-card summary { grid-template-columns: 1fr auto; gap: 7px 12px; }
+      .table-purpose { grid-column: 1 / -1; grid-row: 2; }
+      .summary-meta { grid-column: 1; justify-content: flex-start; }
+      .table-card summary::after { grid-column: 2; grid-row: 1; }
+      .design-notes, .conventions, .constraint-list { grid-template-columns: 1fr; }
+      footer { flex-direction: column; gap: 5px; }
+    }
+
+    @media (max-width: 520px) {
+      .hero-inner, main, footer { width: min(100% - 24px, 1260px); }
+      .snapshot { grid-template-columns: 1fr 1fr; }
+      .metric { padding: 12px; }
+      .schema-map { padding: 22px; }
+      .scope-note { grid-template-columns: 1fr; }
+      .table-card summary, .table-card-body { padding-left: 14px; padding-right: 14px; }
+      .detail-controls { top: 4px; }
+      #result-count { width: 100%; text-align: left; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+
+    @media print {
+      body { background: #fff; }
+      .hero { padding: 28px; color: #000; background: #fff; border: 0; }
+      .hero-copy, .metric span { color: #333; }
+      .metric { color: #000; background: #fff; border: 1px solid #aaa; }
+      .metric strong { color: #000; }
+      .blueprint-shell, .detail-controls { display: none; }
+      .table-card { break-inside: avoid; box-shadow: none; }
+      .table-card:not([open]) > *:not(summary) { display: block; }
+      .table-card summary::after { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <p class="eyebrow">McAlbum / MySQL schema atlas</p>
+      <h1>数据表设计<br>蓝图</h1>
+      <p class="hero-copy">先读懂表与表之间如何协作，再深入到每一列。本文档以当前 MySQL 实例、SQLAlchemy 模型与 Alembic 迁移为依据，呈现 McAlbum 协作阶段的真实数据边界。</p>
+      <div class="snapshot" aria-label="数据库快照">
+        <div class="metric"><strong>17</strong><span>数据表（含 1 张迁移表）</span></div>
+        <div class="metric"><strong>24</strong><span>外键关系</span></div>
+        <div class="metric"><strong>4</strong><span>业务领域</span></div>
+        <div class="metric"><strong>0005</strong><span>Alembic 当前迁移</span></div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="section" id="relationship-overview">
+      <div class="section-heading">
+        <div>
+          <span class="section-number">LAYER 01 / RELATIONSHIPS</span>
+          <h2>关系总览</h2>
+        </div>
+        <p>把鼠标移到任意表上可聚焦其上下游关系；点击表节点会进入第二层，并自动展开对应的字段设计。连线颜色表达删除策略，而不是业务流向。</p>
+      </div>
+
+      <div class="blueprint-shell">
+        <div class="map-toolbar">
+          <div class="legend" aria-label="关系线图例">
+            <span><i></i>普通外键 / RESTRICT</span>
+            <span><i class="cascade"></i>ON DELETE CASCADE</span>
+            <span><i class="set-null"></i>ON DELETE SET NULL</span>
+          </div>
+          <p class="map-instruction">节点可点击 · 横向滚动查看完整蓝图</p>
+        </div>
+        <div class="map-scroll">
+          <div class="schema-map" id="schema-map" aria-label="McAlbum 数据表关系图">
+            <svg class="relation-svg" id="relation-svg" aria-hidden="true"></svg>
+          </div>
+        </div>
+        <div class="relationship-ledger" id="relationship-ledger" aria-label="关键关系说明"></div>
+      </div>
+
+      <aside class="scope-note">
+        <strong>SCOPE</strong>
+        <p>当前采用单世界模型。此前的 <code>seasons</code>、<code>places</code>、<code>timeline_events</code> 以及相关关联表已由迁移 <code>20261028_0002</code> 和 <code>20261028_0003</code> 删除，因此不属于现行数据设计。</p>
+      </aside>
+    </section>
+
+    <section class="section" id="table-designs">
+      <div class="section-heading">
+        <div>
+          <span class="section-number">LAYER 02 / TABLE LEDGER</span>
+          <h2>表级设计</h2>
+        </div>
+        <p>字段类型和可空性来自实际 MySQL 结构；“应用默认值”与业务枚举来自当前 SQLAlchemy/Pydantic 实现。数据库没有配置的服务端默认值不会被误写为数据库默认值。</p>
+      </div>
+
+      <div class="detail-controls" role="search">
+        <label class="search-wrap">
+          <span class="visually-hidden">搜索表或字段</span>
+          <input id="table-search" type="search" placeholder="搜索表名、字段、用途或说明…" autocomplete="off">
+          <span class="key-hint">/</span>
+        </label>
+        <div class="filter-set" aria-label="领域筛选">
+          <button class="filter-button" type="button" data-filter="all" aria-pressed="true">全部</button>
+          <button class="filter-button" type="button" data-filter="identity" aria-pressed="false">身份权限</button>
+          <button class="filter-button" type="button" data-filter="people" aria-pressed="false">玩家档案</button>
+          <button class="filter-button" type="button" data-filter="content" aria-pressed="false">内容关联</button>
+          <button class="filter-button" type="button" data-filter="media" aria-pressed="false">媒体资产</button>
+          <button class="filter-button" type="button" data-filter="system" aria-pressed="false">系统</button>
+        </div>
+        <button class="control-button" id="toggle-all" type="button">展开全部</button>
+        <span id="result-count" aria-live="polite"></span>
+      </div>
+
+      <div class="table-details" id="table-details"></div>
+      <div class="empty-state" id="empty-state" hidden>没有匹配的表或字段，请换一个关键词。</div>
+
+      <div class="conventions" aria-label="数据库通用约定">
+        <article class="convention"><strong>时间与时区</strong><p>业务时间写入 MySQL <code>DATETIME</code> 时统一保存为无时区 UTC；API 或页面读取后再转换为 <code>Asia/Shanghai</code>。仅日期语义使用 <code>DATE</code>。</p></article>
+        <article class="convention"><strong>ID 稳定性</strong><p>业务实体使用字符串 ID，发布后不随显示名称变化；自增整数只用于不暴露给用户的权限行和媒体变体行。</p></article>
+        <article class="convention"><strong>JSON 使用边界</strong><p><code>stories.sections</code>、邀请码权限和审计元数据使用 JSON；照片标签已经规范化为 <code>tags</code> 与 <code>photo_tags</code>，实体关系通过普通列、外键和关联表表达。</p></article>
+        <article class="convention"><strong>媒体存储边界</strong><p>数据库只保存相对 <code>storage_key</code> 与尺寸、哈希等元数据，图片二进制保留在本地持久化文件系统，不进入 MySQL BLOB。</p></article>
+        <article class="convention"><strong>删除策略</strong><p>会话、细分权限、媒体变体、评论及内容关联随父记录级联清理；其他历史归属默认受外键约束保护，账号与玩家解绑采用 SET NULL。</p></article>
+        <article class="convention"><strong>状态由服务层守护</strong><p>状态列当前是 <code>VARCHAR</code>，合法转换由 FastAPI Service 与 Pydantic 校验，并非 MySQL ENUM 或 CHECK 约束。</p></article>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>结构快照：2026-11-01 · 数据库 <code>mcalbum</code> · MySQL / InnoDB / utf8mb4</span>
+    <span>来源：实际数据库反射 + <code>entities.py</code> + Alembic <code>20261101_0005</code></span>
+  </footer>
+
+  <noscript><p style="padding:24px">此文档需要 JavaScript 来绘制关系图并展开表设计。</p></noscript>
+
+  <script>
+    "use strict";
+
+    const f = (name, type, nullable, keys, description, appDefault = "—", ref = null) => ({
+      name, type, nullable, keys, description, appDefault, ref,
+    });
+
+    const timestampFields = () => [
+      f("created_at", "DATETIME", false, [], "记录创建时间（UTC）"),
+      f("updated_at", "DATETIME", false, [], "记录最后更新时间（UTC）"),
+    ];
+
+    const publicationFields = () => [
+      f("status", "VARCHAR(20)", false, [], "发布生命周期：draft / pending / published / rejected / archived", "应用层：draft"),
+      f("author_user_id", "VARCHAR(40)", false, ["FK"], "内容归属账号", "—", { table: "users", column: "id" }),
+      f("published_at", "DATETIME", true, [], "实际发布时间（UTC），未发布时为空"),
+      f("published_by", "VARCHAR(40)", true, ["FK"], "执行发布操作的管理员或获授权账号", "—", { table: "users", column: "id" }),
+      f("rejection_reason", "VARCHAR(500)", true, [], "审核拒绝原因"),
+      ...timestampFields(),
+    ];
+
+    const domains = {
+      identity: { label: "身份与权限", short: "IDENTITY", order: 1 },
+      people: { label: "玩家档案", short: "PEOPLE", order: 2 },
+      content: { label: "内容与关联", short: "CONTENT", order: 3 },
+      media: { label: "媒体资产", short: "MEDIA", order: 4 },
+      system: { label: "迁移系统", short: "SYSTEM", order: 5 },
+    };
+
+    const tables = [
+      {
+        name: "users", label: "用户账号", domain: "identity", kind: "business",
+        purpose: "登录身份、固定角色、启停状态与玩家档案绑定的根表。账号和玩家实体刻意分离。",
+        ownership: "账号由管理员与注册流程维护", lifecycle: "enabled 控制登录；删除前受历史内容外键保护", sensitivity: "高：密码哈希与账号身份",
+        fields: [
+          f("id", "VARCHAR(40)", false, ["PK"], "系统生成的稳定账号 ID"),
+          f("username", "VARCHAR(64)", false, ["UQ"], "登录名；服务层写入前会规范化"),
+          f("display_name", "VARCHAR(80)", false, [], "界面显示名称"),
+          f("password_hash", "VARCHAR(255)", false, [], "Argon2id 密码哈希，不保存明文", "应用层：Argon2id"),
+          f("role", "VARCHAR(16)", false, [], "固定角色：user / admin；访客不是数据库角色", "应用层：user"),
+          f("enabled", "TINYINT(1)", false, [], "账号是否允许认证", "应用层：true"),
+          f("player_id", "VARCHAR(100)", true, ["FK", "UQ"], "一对一绑定的玩家档案；玩家删除时自动解绑", "—", { table: "players", column: "id", onDelete: "SET NULL" }),
+          ...timestampFields(),
+        ],
+        constraints: ["PRIMARY KEY (id)", "UNIQUE (username)", "UNIQUE (player_id)", "FOREIGN KEY player_id → players.id ON DELETE SET NULL"],
+      },
+      {
+        name: "user_permissions", label: "用户能力", domain: "identity", kind: "link",
+        purpose: "给普通用户授予少量固定能力；不实现任意角色或通用 ACL。",
+        ownership: "管理员维护", lifecycle: "账号删除时级联删除", sensitivity: "中：授权信息",
+        fields: [
+          f("id", "BIGINT", false, ["PK"], "内部自增行 ID", "数据库：AUTO_INCREMENT"),
+          f("user_id", "VARCHAR(40)", false, ["FK", "UQ*"], "被授权账号", "—", { table: "users", column: "id", onDelete: "CASCADE" }),
+          f("permission", "VARCHAR(64)", false, ["UQ*"], "固定能力标识，如 photo.create、story.publish"),
+        ],
+        constraints: ["PRIMARY KEY (id)", "UNIQUE (user_id, permission)", "FOREIGN KEY user_id → users.id ON DELETE CASCADE", "当前白名单共 7 项，由服务层校验"],
+      },
+      {
+        name: "user_sessions", label: "登录会话", domain: "identity", kind: "business",
+        purpose: "服务端 Cookie 会话记录，仅保存令牌和 CSRF 秘密的 SHA-256 摘要。",
+        ownership: "认证服务自动维护", lifecycle: "过期或撤销后失效；账号删除时级联删除", sensitivity: "高：认证会话摘要",
+        fields: [
+          f("id", "VARCHAR(40)", false, ["PK"], "会话稳定 ID，格式 ses_*"),
+          f("user_id", "VARCHAR(40)", false, ["FK"], "会话所属账号", "—", { table: "users", column: "id", onDelete: "CASCADE" }),
+          f("token_hash", "VARCHAR(64)", false, ["UQ"], "Cookie 会话令牌的 SHA-256 摘要"),
+          f("csrf_hash", "VARCHAR(64)", false, [], "CSRF 令牌的 SHA-256 摘要"),
+          f("expires_at", "DATETIME", false, [], "会话到期时间（UTC）"),
+          f("revoked_at", "DATETIME", true, [], "主动退出或撤销时间（UTC）"),
+          f("created_at", "DATETIME", false, [], "会话创建时间（UTC）"),
+          f("last_seen_at", "DATETIME", false, [], "最近一次有效访问时间（UTC）"),
+        ],
+        constraints: ["PRIMARY KEY (id)", "UNIQUE INDEX ix_user_sessions_token_hash (token_hash)", "INDEX (user_id)", "FOREIGN KEY user_id → users.id ON DELETE CASCADE"],
+      },
+      {
+        name: "invitations", label: "注册邀请", domain: "identity", kind: "business",
+        purpose: "邀请码及预授予能力集合，支撑轻量的邀请注册流程。",
+        ownership: "管理员创建，注册流程消费", lifecycle: "到期或使用后不可再次消费", sensitivity: "高：邀请码只保存摘要",
+        fields: [
+          f("id", "VARCHAR(40)", false, ["PK"], "邀请记录 ID"),
+          f("code_hash", "VARCHAR(64)", false, ["UQ"], "原始邀请码的 SHA-256 摘要"),
+          f("permissions", "JSON", false, [], "注册成功后授予的固定能力标识数组"),
+          f("expires_at", "DATETIME", false, [], "邀请码到期时间（UTC）"),
+          f("created_by", "VARCHAR(40)", false, ["FK"], "创建邀请的管理员", "—", { table: "users", column: "id" }),
+          f("used_by", "VARCHAR(40)", true, ["FK"], "最终使用邀请注册的账号", "—", { table: "users", column: "id" }),
+          f("used_at", "DATETIME", true, [], "实际使用时间（UTC）"),
+          f("created_at", "DATETIME", false, [], "邀请创建时间（UTC）"),
+        ],
+        constraints: ["PRIMARY KEY (id)", "UNIQUE (code_hash)", "INDEX (created_by)", "INDEX (used_by)", "created_by / used_by 均引用 users.id"],
+      },
+      {
+        name: "audit_logs", label: "审计日志", domain: "identity", kind: "business",
+        purpose: "记录权限变更、发布下架、评论隐藏等关键管理动作。目标采用类型与 ID 的轻量多态引用。",
+        ownership: "业务服务只追加", lifecycle: "作为历史证据长期保留", sensitivity: "中：操作轨迹与元数据",
+        fields: [
+          f("id", "VARCHAR(40)", false, ["PK"], "审计记录 ID"),
+          f("actor_user_id", "VARCHAR(40)", false, ["FK"], "执行动作的账号", "—", { table: "users", column: "id" }),
+          f("action", "VARCHAR(80)", false, [], "动作标识，如 permission.update"),
+          f("target_type", "VARCHAR(40)", false, [], "目标实体类型；为审计用途的轻量多态字段"),
+          f("target_id", "VARCHAR(120)", false, [], "目标实体稳定 ID；不设置跨表外键"),
+          f("metadata_json", "JSON", false, [], "动作补充信息，避免频繁增加审计专用列"),
+          f("created_at", "DATETIME", false, [], "动作发生时间（UTC）"),
+        ],
+        constraints: ["PRIMARY KEY (id)", "INDEX (actor_user_id)", "FOREIGN KEY actor_user_id → users.id", "target_type + target_id 为逻辑引用，不受数据库外键约束"],
+      },
+      {
+        name: "players", label: "玩家档案", domain: "people", kind: "business",
+        purpose: "Minecraft 玩家身份与公开档案；独立于可登录账号，允许保留离线或历史成员。",
+        ownership: "绑定账号可维护自己的档案，管理员可管理", lifecycle: "resident / historical / private", sensitivity: "低至中：公开展示资料",
+        fields: [
+          f("id", "VARCHAR(100)", false, ["PK"], "稳定玩家 ID，不随显示名称变化"),
+          f("name", "VARCHAR(100)", false, [], "玩家显示名称"),
+          f("bio", "TEXT", false, [], "玩家简介", "应用层：空字符串"),
+          f("status", "VARCHAR(20)", false, [], "档案状态：resident / historical / private", "应用层：private"),
+          f("avatar_asset_id", "VARCHAR(80)", true, ["FK"], "头像媒体资产", "—", { table: "media_assets", column: "id" }),
+          f("joined_at", "DATE", true, [], "加入服务器的日期，仅保留日期语义"),
+          ...timestampFields(),
+        ],
+        constraints: ["PRIMARY KEY (id)", "INDEX fk_players_avatar_asset (avatar_asset_id)", "FOREIGN KEY avatar_asset_id → media_assets.id"],
+      },
+      {
+        name: "photos", label: "散图", domain: "content", kind: "business",
+        purpose: "照片的策展信息、作者归属、拍摄者与发布状态；一张媒体资产最多编目为一张散图。",
+        ownership: "author_user_id 决定内容归属", lifecycle: "draft → pending → published / rejected → archived", sensitivity: "公开内容；草稿与拒绝原因非公开",
+        fields: [
+          f("id", "VARCHAR(120)", false, ["PK"], "系统生成的稳定照片 ID"),
+          f("title", "VARCHAR(160)", false, [], "照片标题"),
+          f("description", "TEXT", false, [], "可选的照片背景与故事说明；未填写时保存空字符串", "应用层：空字符串"),
+          f("asset_id", "VARCHAR(80)", false, ["FK", "UQ"], "唯一对应的媒体资产", "—", { table: "media_assets", column: "id" }),
+          f("captured_at", "DATETIME", false, [], "拍摄时间（UTC）；可由原文件名日期推断"),
+          f("photographer_id", "VARCHAR(100)", true, ["FK"], "实际摄影玩家，可与投稿账号不同", "—", { table: "players", column: "id" }),
+          f("featured", "TINYINT(1)", false, [], "是否作为重点内容展示", "应用层：false"),
+          f("display_variant", "VARCHAR(20)", false, [], "展示规格：featured / normal / portrait / note", "应用层：normal"),
+          ...publicationFields(),
+        ],
+        constraints: ["PRIMARY KEY (id)", "UNIQUE (asset_id)", "INDEX ix_photos_public_captured (status, captured_at, id)", "INDEX (author_user_id, published_by, photographer_id)", "asset_id → media_assets.id", "author_user_id / published_by → users.id", "photographer_id → players.id"],
+      },
+      {
+        name: "tags", label: "照片标签", domain: "content", kind: "business",
+        purpose: "保存可复用的标签名称，为后续标签检索、统计、改名与推荐提供稳定实体。",
+        ownership: "散图编目服务按需创建并复用", lifecycle: "标签关系解除后暂时保留，便于后续治理", sensitivity: "低",
+        fields: [
+          f("id", "VARCHAR(40)", false, ["PK"], "由规范名称哈希生成的稳定标签 ID"),
+          f("name", "VARCHAR(64)", false, [], "用户可见的标签名称"),
+          f("normalized_name", "VARCHAR(64)", false, ["UQ"], "去除多余空白并进行大小写规范化后的查重名称"),
+          f("created_at", "DATETIME", false, [], "标签首次创建时间（UTC）"),
+        ],
+        constraints: ["PRIMARY KEY (id)", "UNIQUE uq_tags_normalized_name (normalized_name)"],
+      },
+      {
+        name: "photo_tags", label: "照片—标签", domain: "content", kind: "link",
+        purpose: "照片与标签的多对多关联；筛选查询不再扫描照片 JSON。",
+        ownership: "随散图编目维护", lifecycle: "照片或标签删除时关联行级联删除", sensitivity: "低",
+        fields: [
+          f("photo_id", "VARCHAR(120)", false, ["PK", "FK"], "关联照片", "—", { table: "photos", column: "id", onDelete: "CASCADE" }),
+          f("tag_id", "VARCHAR(40)", false, ["PK", "FK"], "关联标签", "—", { table: "tags", column: "id", onDelete: "CASCADE" }),
+        ],
+        constraints: ["COMPOSITE PRIMARY KEY (photo_id, tag_id)", "INDEX ix_photo_tags_tag_photo (tag_id, photo_id)", "photo_id → photos.id ON DELETE CASCADE", "tag_id → tags.id ON DELETE CASCADE"],
+      },
+      {
+        name: "stories", label: "作品集", domain: "content", kind: "business",
+        purpose: "主题历史作品集；关系字段保持规范化，灵活的正文区块保存在 sections JSON。",
+        ownership: "author_user_id 决定内容归属", lifecycle: "draft → pending → published / rejected → archived", sensitivity: "公开内容；草稿与拒绝原因非公开",
+        fields: [
+          f("id", "VARCHAR(120)", false, ["PK"], "系统生成的稳定作品集 ID"),
+          f("title", "VARCHAR(160)", false, [], "作品集标题"),
+          f("summary", "TEXT", false, [], "列表与详情页摘要"),
+          f("cover_asset_id", "VARCHAR(80)", false, ["FK"], "封面媒体资产", "—", { table: "media_assets", column: "id" }),
+          f("sections", "JSON", false, [], "有序内容区块数组；区块 ID 由系统补全并保证作品集内唯一"),
+          ...publicationFields(),
+        ],
+        constraints: ["PRIMARY KEY (id)", "INDEX (cover_asset_id, author_user_id, published_by)", "cover_asset_id → media_assets.id", "author_user_id / published_by → users.id", "sections 的结构由 Pydantic 校验，不依赖 MySQL JSON Schema"],
+      },
+      {
+        name: "comments", label: "照片评论", domain: "content", kind: "business",
+        purpose: "已登录用户对已发布照片的异步评论；支持管理员隐藏与恢复。",
+        ownership: "author_user_id 标识评论作者", lifecycle: "published / hidden；照片删除时级联删除", sensitivity: "用户生成内容",
+        fields: [
+          f("id", "VARCHAR(40)", false, ["PK"], "系统生成的评论 ID"),
+          f("photo_id", "VARCHAR(120)", false, ["FK"], "评论所属照片", "—", { table: "photos", column: "id", onDelete: "CASCADE" }),
+          f("author_user_id", "VARCHAR(40)", false, ["FK"], "评论作者账号", "—", { table: "users", column: "id" }),
+          f("body", "TEXT", false, [], "评论正文；API 当前限制 1–1000 字符"),
+          f("status", "VARCHAR(20)", false, [], "评论状态：published / hidden", "应用层：published"),
+          f("hidden_reason", "VARCHAR(500)", true, [], "管理员隐藏原因"),
+          ...timestampFields(),
+        ],
+        constraints: ["PRIMARY KEY (id)", "INDEX (photo_id)", "INDEX (author_user_id)", "photo_id → photos.id ON DELETE CASCADE", "author_user_id → users.id"],
+      },
+      {
+        name: "photo_players", label: "照片—玩家", domain: "content", kind: "link",
+        purpose: "照片与出镜/相关玩家的多对多关联。",
+        ownership: "随照片编目维护", lifecycle: "照片删除时级联；玩家仍被关联时禁止删除", sensitivity: "低",
+        fields: [
+          f("photo_id", "VARCHAR(120)", false, ["PK", "FK"], "关联照片", "—", { table: "photos", column: "id", onDelete: "CASCADE" }),
+          f("player_id", "VARCHAR(100)", false, ["PK", "FK"], "关联玩家", "—", { table: "players", column: "id" }),
+        ],
+        constraints: ["COMPOSITE PRIMARY KEY (photo_id, player_id)", "INDEX (player_id)", "photo_id → photos.id ON DELETE CASCADE", "player_id → players.id"],
+      },
+      {
+        name: "photo_stories", label: "照片—作品集", domain: "content", kind: "link",
+        purpose: "散图与作品集的多对多关系；用于从照片反查作品集及组织主题内容。",
+        ownership: "随照片或作品集编辑维护", lifecycle: "任一侧删除时关联行级联删除", sensitivity: "低",
+        fields: [
+          f("photo_id", "VARCHAR(120)", false, ["PK", "FK"], "关联照片", "—", { table: "photos", column: "id", onDelete: "CASCADE" }),
+          f("story_id", "VARCHAR(120)", false, ["PK", "FK"], "关联作品集", "—", { table: "stories", column: "id", onDelete: "CASCADE" }),
+        ],
+        constraints: ["COMPOSITE PRIMARY KEY (photo_id, story_id)", "INDEX (story_id)", "photo_id → photos.id ON DELETE CASCADE", "story_id → stories.id ON DELETE CASCADE"],
+      },
+      {
+        name: "story_players", label: "作品集—玩家", domain: "content", kind: "link",
+        purpose: "作品集与相关玩家的多对多关联。",
+        ownership: "随作品集编辑维护", lifecycle: "作品集删除时级联；玩家仍被关联时禁止删除", sensitivity: "低",
+        fields: [
+          f("story_id", "VARCHAR(120)", false, ["PK", "FK"], "关联作品集", "—", { table: "stories", column: "id", onDelete: "CASCADE" }),
+          f("player_id", "VARCHAR(100)", false, ["PK", "FK"], "关联玩家", "—", { table: "players", column: "id" }),
+        ],
+        constraints: ["COMPOSITE PRIMARY KEY (story_id, player_id)", "INDEX (player_id)", "story_id → stories.id ON DELETE CASCADE", "player_id → players.id"],
+      },
+      {
+        name: "media_assets", label: "媒体原始资产", domain: "media", kind: "business",
+        purpose: "上传图片的主元数据、文件定位、完整性哈希、焦点与处理状态；不保存图片二进制。",
+        ownership: "owner_user_id 标识上传账号", lifecycle: "pending → ready / failed；文件与记录采用补偿式一致性", sensitivity: "高：含原文件名与原图路径键",
+        fields: [
+          f("id", "VARCHAR(80)", false, ["PK"], "系统生成的媒体资产 ID"),
+          f("owner_user_id", "VARCHAR(40)", false, ["FK"], "上传并拥有资产的账号", "—", { table: "users", column: "id" }),
+          f("original_filename", "VARCHAR(255)", false, [], "用户上传时的原始文件名，仅作元数据，不作为磁盘文件名"),
+          f("storage_key", "VARCHAR(500)", true, [], "相对媒体根目录的原图 storage key；处理落盘前可为空"),
+          f("mime_type", "VARCHAR(80)", false, [], "检测后的 MIME 类型"),
+          f("extension", "VARCHAR(10)", false, [], "规范化文件扩展名"),
+          f("byte_size", "BIGINT", false, [], "原图字节数"),
+          f("width", "BIGINT", false, [], "原图像素宽度"),
+          f("height", "BIGINT", false, [], "原图像素高度"),
+          f("sha256", "VARCHAR(64)", false, ["UQ"], "原图 SHA-256；同时用于内容去重与完整性核验"),
+          f("captured_at", "DATETIME", false, [], "推断或用户确认的拍摄时间（UTC）"),
+          f("alt_text", "VARCHAR(240)", false, [], "图片替代文本"),
+          f("focal_x", "DECIMAL(5,4)", false, [], "横向视觉焦点，归一化为 0–1"),
+          f("focal_y", "DECIMAL(5,4)", false, [], "纵向视觉焦点，归一化为 0–1"),
+          f("processing_status", "VARCHAR(20)", false, [], "文件处理状态：pending / ready / failed"),
+          f("editorial_status", "VARCHAR(20)", false, [], "媒体编辑状态，上传时为 draft"),
+          f("allow_original_download", "TINYINT(1)", false, [], "是否允许公开下载原图", "应用层：false"),
+          ...timestampFields(),
+        ],
+        constraints: ["PRIMARY KEY (id)", "UNIQUE (sha256)", "INDEX (owner_user_id)", "FOREIGN KEY owner_user_id → users.id", "storage_key 保存相对路径，不保存绝对路径"],
+      },
+      {
+        name: "media_variants", label: "公开图片变体", domain: "media", kind: "business",
+        purpose: "由原图派生的响应式公开尺寸；变体可重建，原图才是备份核心。",
+        ownership: "媒体处理服务自动生成", lifecycle: "主资产删除时级联删除记录与对应变体文件", sensitivity: "低：公开变体元数据",
+        fields: [
+          f("id", "BIGINT", false, ["PK"], "内部自增变体 ID", "数据库：AUTO_INCREMENT"),
+          f("asset_id", "VARCHAR(80)", false, ["FK", "UQ*"], "所属媒体主资产", "—", { table: "media_assets", column: "id", onDelete: "CASCADE" }),
+          f("name", "VARCHAR(24)", false, ["UQ*"], "变体规格名；同一资产内唯一"),
+          f("storage_key", "VARCHAR(500)", false, [], "相对媒体根目录的公开变体 storage key"),
+          f("mime_type", "VARCHAR(80)", false, [], "变体 MIME 类型"),
+          f("byte_size", "BIGINT", false, [], "变体字节数"),
+          f("width", "BIGINT", false, [], "变体像素宽度"),
+          f("height", "BIGINT", false, [], "变体像素高度"),
+          f("sha256", "VARCHAR(64)", false, [], "变体文件 SHA-256 完整性摘要"),
+        ],
+        constraints: ["PRIMARY KEY (id)", "UNIQUE (asset_id, name)", "FOREIGN KEY asset_id → media_assets.id ON DELETE CASCADE"],
+      },
+      {
+        name: "alembic_version", label: "迁移版本", domain: "system", kind: "system",
+        purpose: "Alembic 内部表，记录数据库已应用的迁移头；不承载业务数据。",
+        ownership: "Alembic 命令维护", lifecycle: "随迁移升级或降级更新", sensitivity: "低",
+        fields: [f("version_num", "VARCHAR(32)", false, ["PK"], "当前迁移版本；实况为 20261101_0005")],
+        constraints: ["PRIMARY KEY (version_num)", "当前值：20261101_0005"],
+      },
+    ];
+
+    const mapGroups = ["identity", "people", "content", "media"];
+    const relations = tables.flatMap((table) => table.fields
+      .filter((field) => field.ref)
+      .map((field) => ({
+        from: table.name,
+        field: field.name,
+        to: field.ref.table,
+        target: field.ref.column,
+        onDelete: field.ref.onDelete || "RESTRICT",
+      })));
+
+    const tableByName = new Map(tables.map((table) => [table.name, table]));
+    let activeFilter = "all";
+
+    const escapeHtml = (value) => String(value).replace(/[&<>'"]/g, (character) => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;",
+    })[character]);
+
+    function renderMap() {
+      const map = document.querySelector("#schema-map");
+      mapGroups.forEach((domainName) => {
+        const domain = domains[domainName];
+        const section = document.createElement("section");
+        section.className = "domain-column";
+        section.innerHTML = `<h3 class="domain-title">${domain.short} / ${domain.label}</h3><div class="node-stack"></div>`;
+        const stack = section.querySelector(".node-stack");
+        tables.filter((table) => table.domain === domainName).forEach((table) => {
+          const foreignKeyCount = table.fields.filter((field) => field.ref).length;
+          const node = document.createElement("button");
+          node.type = "button";
+          node.className = "table-node";
+          node.dataset.table = table.name;
+          node.setAttribute("aria-label", `查看 ${table.name} 表设计`);
+          node.innerHTML = `<strong>${table.name}</strong><span>${table.label}</span><b>${foreignKeyCount ? `${foreignKeyCount} FK` : "ROOT"}</b>`;
+          node.addEventListener("click", () => openTable(table.name));
+          node.addEventListener("mouseenter", () => highlightRelations(table.name));
+          node.addEventListener("focus", () => highlightRelations(table.name));
+          node.addEventListener("mouseleave", clearRelationHighlight);
+          node.addEventListener("blur", clearRelationHighlight);
+          stack.append(node);
+        });
+        map.append(section);
+      });
+      drawRelationLines();
+    }
+
+    function uniqueVisualRelations() {
+      const grouped = new Map();
+      relations.forEach((relation) => {
+        const key = `${relation.from}|${relation.to}|${relation.onDelete}`;
+        const current = grouped.get(key);
+        if (current) current.fields.push(relation.field);
+        else grouped.set(key, { ...relation, fields: [relation.field] });
+      });
+      return [...grouped.values()];
+    }
+
+    function drawRelationLines() {
+      const map = document.querySelector("#schema-map");
+      const svg = document.querySelector("#relation-svg");
+      const mapBox = map.getBoundingClientRect();
+      svg.setAttribute("viewBox", `0 0 ${mapBox.width} ${mapBox.height}`);
+      svg.innerHTML = "";
+
+      uniqueVisualRelations().forEach((relation) => {
+        const fromNode = map.querySelector(`[data-table="${relation.from}"]`);
+        const toNode = map.querySelector(`[data-table="${relation.to}"]`);
+        if (!fromNode || !toNode) return;
+        const a = fromNode.getBoundingClientRect();
+        const b = toNode.getBoundingClientRect();
+        const aCenter = { x: a.left - mapBox.left + a.width / 2, y: a.top - mapBox.top + a.height / 2 };
+        const bCenter = { x: b.left - mapBox.left + b.width / 2, y: b.top - mapBox.top + b.height / 2 };
+        const horizontal = Math.abs(bCenter.x - aCenter.x) >= Math.abs(bCenter.y - aCenter.y);
+        let start;
+        let end;
+        let d;
+        if (horizontal) {
+          const direction = Math.sign(bCenter.x - aCenter.x) || 1;
+          start = { x: aCenter.x + direction * a.width / 2, y: aCenter.y };
+          end = { x: bCenter.x - direction * b.width / 2, y: bCenter.y };
+          const bend = Math.max(28, Math.abs(end.x - start.x) * .45);
+          d = `M ${start.x} ${start.y} C ${start.x + direction * bend} ${start.y}, ${end.x - direction * bend} ${end.y}, ${end.x} ${end.y}`;
+        } else {
+          const direction = Math.sign(bCenter.y - aCenter.y) || 1;
+          start = { x: aCenter.x, y: aCenter.y + direction * a.height / 2 };
+          end = { x: bCenter.x, y: bCenter.y - direction * b.height / 2 };
+          const bend = Math.max(20, Math.abs(end.y - start.y) * .45);
+          d = `M ${start.x} ${start.y} C ${start.x} ${start.y + direction * bend}, ${end.x} ${end.y - direction * bend}, ${end.x} ${end.y}`;
+        }
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", d);
+        path.setAttribute("class", "relation-path");
+        path.dataset.from = relation.from;
+        path.dataset.to = relation.to;
+        path.dataset.delete = relation.onDelete;
+        const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
+        title.textContent = `${relation.from}.${relation.fields.join(" / ")} → ${relation.to}.id`;
+        path.append(title);
+        svg.append(path);
+      });
+    }
+
+    function highlightRelations(tableName) {
+      const related = new Set([tableName]);
+      document.querySelectorAll(".relation-path").forEach((path) => {
+        const active = path.dataset.from === tableName || path.dataset.to === tableName;
+        path.classList.toggle("is-active", active);
+        path.classList.toggle("is-muted", !active);
+        if (active) {
+          related.add(path.dataset.from);
+          related.add(path.dataset.to);
+        }
+      });
+      document.querySelectorAll(".table-node").forEach((node) => {
+        node.classList.toggle("is-active", node.dataset.table === tableName);
+        node.classList.toggle("is-related", related.has(node.dataset.table) && node.dataset.table !== tableName);
+        node.classList.toggle("is-muted", !related.has(node.dataset.table));
+      });
+    }
+
+    function clearRelationHighlight() {
+      document.querySelectorAll(".relation-path, .table-node").forEach((item) => {
+        item.classList.remove("is-active", "is-related", "is-muted");
+      });
+    }
+
+    function renderRelationshipLedger() {
+      const ledger = document.querySelector("#relationship-ledger");
+      const featured = [
+        relations.find((r) => r.from === "users" && r.field === "player_id"),
+        relations.find((r) => r.from === "photos" && r.field === "asset_id"),
+        relations.find((r) => r.from === "photo_stories" && r.field === "story_id"),
+        relations.find((r) => r.from === "comments" && r.field === "photo_id"),
+        relations.find((r) => r.from === "media_variants" && r.field === "asset_id"),
+        relations.find((r) => r.from === "audit_logs" && r.field === "actor_user_id"),
+      ].filter(Boolean);
+      featured.forEach((relation) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "relation-entry";
+        const ruleClass = relation.onDelete === "SET NULL" ? "set-null" : "";
+        button.innerHTML = `<code>${relation.from}.${relation.field} → ${relation.to}.${relation.target}</code><small>删除规则：<span class="delete-rule ${ruleClass}">${relation.onDelete}</span></small>`;
+        button.addEventListener("click", () => openTable(relation.from));
+        ledger.append(button);
+      });
+    }
+
+    function incomingRelations(tableName) {
+      return relations.filter((relation) => relation.to === tableName);
+    }
+
+    function relationChip(relation, direction) {
+      const targetName = direction === "out" ? relation.to : relation.from;
+      const label = direction === "out"
+        ? `${relation.field} → ${relation.to}.${relation.target}`
+        : `${relation.from}.${relation.field} → 本表`;
+      return `<button type="button" class="relation-chip" data-open-table="${targetName}">${escapeHtml(label)}</button>`;
+    }
+
+    function renderFields(table) {
+      return table.fields.map((field) => {
+        const keys = field.keys.map((key) => `<span class="key ${key.startsWith("PK") ? "pk" : key.startsWith("FK") ? "fk" : "uq"}">${escapeHtml(key)}</span>`).join("") || "—";
+        return `<tr>
+          <td><code>${escapeHtml(field.name)}</code></td>
+          <td><code class="type">${escapeHtml(field.type)}</code></td>
+          <td class="${field.nullable ? "null-yes" : "null-no"}">${field.nullable ? "是" : "否"}</td>
+          <td>${keys}</td>
+          <td>${escapeHtml(field.appDefault)}</td>
+          <td>${escapeHtml(field.description)}</td>
+        </tr>`;
+      }).join("");
+    }
+
+    function renderDetails() {
+      const container = document.querySelector("#table-details");
+      tables.forEach((table) => {
+        const outgoing = relations.filter((relation) => relation.from === table.name);
+        const incoming = incomingRelations(table.name);
+        const card = document.createElement("details");
+        card.className = "table-card";
+        card.id = `table-${table.name}`;
+        card.dataset.table = table.name;
+        card.dataset.domain = table.domain;
+        card.dataset.search = [table.name, table.label, table.purpose, ...table.fields.flatMap((field) => [field.name, field.description])].join(" ").toLowerCase();
+        card.innerHTML = `
+          <summary>
+            <span><span class="table-name">${table.name}</span><span class="table-label">${table.label}</span></span>
+            <span class="table-purpose">${table.purpose}</span>
+            <span class="summary-meta"><span class="badge ${table.kind}">${table.kind === "business" ? "业务表" : table.kind === "link" ? "关联表" : "系统表"}</span><span class="badge">${table.fields.length} 字段</span></span>
+          </summary>
+          <div class="table-card-body">
+            <div class="design-notes">
+              <div class="design-note"><strong>维护责任</strong><span>${table.ownership}</span></div>
+              <div class="design-note"><strong>生命周期</strong><span>${table.lifecycle}</span></div>
+              <div class="design-note"><strong>敏感程度</strong><span>${table.sensitivity}</span></div>
+            </div>
+            <h3 class="subheading">关系导航</h3>
+            <div class="relation-chips">
+              ${outgoing.length || incoming.length ? [...outgoing.map((r) => relationChip(r, "out")), ...incoming.map((r) => relationChip(r, "in"))].join("") : '<span class="badge">无外键关系</span>'}
+            </div>
+            <h3 class="subheading">字段设计</h3>
+            <div class="field-table-wrap">
+              <table class="field-table">
+                <thead><tr><th>字段</th><th>MySQL 类型</th><th>可空</th><th>键</th><th>默认 / 生成</th><th>用途与语义</th></tr></thead>
+                <tbody>${renderFields(table)}</tbody>
+              </table>
+            </div>
+            <h3 class="subheading">索引与约束</h3>
+            <ul class="constraint-list">${table.constraints.map((constraint) => `<li>${escapeHtml(constraint)}</li>`).join("")}</ul>
+          </div>`;
+        container.append(card);
+      });
+
+      container.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-open-table]");
+        if (button) openTable(button.dataset.openTable);
+      });
+    }
+
+    function openTable(tableName) {
+      const card = document.querySelector(`#table-${CSS.escape(tableName)}`);
+      if (!card) return;
+      if (card.hidden) {
+        activeFilter = "all";
+        document.querySelector("#table-search").value = "";
+        document.querySelectorAll(".filter-button").forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.filter === "all")));
+        applyFilters();
+      }
+      card.open = true;
+      history.replaceState(null, "", `#table-${tableName}`);
+      card.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+      card.classList.remove("is-flash");
+      requestAnimationFrame(() => card.classList.add("is-flash"));
+      setTimeout(() => card.classList.remove("is-flash"), 1300);
+    }
+
+    function applyFilters() {
+      const query = document.querySelector("#table-search").value.trim().toLowerCase();
+      let visible = 0;
+      document.querySelectorAll(".table-card").forEach((card) => {
+        const domainMatch = activeFilter === "all" || card.dataset.domain === activeFilter;
+        const searchMatch = !query || card.dataset.search.includes(query);
+        card.hidden = !(domainMatch && searchMatch);
+        if (!card.hidden) visible += 1;
+      });
+      document.querySelector("#result-count").textContent = `${visible} / ${tables.length} 张表`;
+      document.querySelector("#empty-state").hidden = visible !== 0;
+    }
+
+    function bindControls() {
+      const search = document.querySelector("#table-search");
+      search.addEventListener("input", applyFilters);
+      document.querySelectorAll(".filter-button").forEach((button) => {
+        button.addEventListener("click", () => {
+          activeFilter = button.dataset.filter;
+          document.querySelectorAll(".filter-button").forEach((item) => item.setAttribute("aria-pressed", String(item === button)));
+          applyFilters();
+        });
+      });
+      const toggle = document.querySelector("#toggle-all");
+      toggle.addEventListener("click", () => {
+        const visibleCards = [...document.querySelectorAll(".table-card:not([hidden])")];
+        const shouldOpen = visibleCards.some((card) => !card.open);
+        visibleCards.forEach((card) => { card.open = shouldOpen; });
+        toggle.textContent = shouldOpen ? "收起全部" : "展开全部";
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "/" && !["INPUT", "TEXTAREA"].includes(document.activeElement.tagName)) {
+          event.preventDefault();
+          search.focus();
+        }
+      });
+    }
+
+    function openInitialHash() {
+      const tableName = location.hash.startsWith("#table-") ? location.hash.slice(7) : "";
+      if (tableByName.has(tableName)) setTimeout(() => openTable(tableName), 80);
+    }
+
+    renderMap();
+    renderRelationshipLedger();
+    renderDetails();
+    bindControls();
+    applyFilters();
+    openInitialHash();
+
+    let resizeFrame = 0;
+    window.addEventListener("resize", () => {
+      cancelAnimationFrame(resizeFrame);
+      resizeFrame = requestAnimationFrame(drawRelationLines);
+    });
+  </script>
+</body>
+</html>

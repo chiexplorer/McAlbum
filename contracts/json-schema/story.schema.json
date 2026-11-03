@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mcalbum.local/schema/story.schema.json",
+  "title": "Story",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "title", "summary", "coverAssetId", "sections", "status", "isMock"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "$ref": "#/$defs/id" },
+    "title": { "type": "string", "minLength": 1 },
+    "summary": { "type": "string", "minLength": 1 },
+    "coverAssetId": { "type": "string", "pattern": "^media-[a-z0-9]+$" },
+    "playerIds": { "type": "array", "items": { "$ref": "#/$defs/id" }, "uniqueItems": true },
+    "sections": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "oneOf": [
+          { "$ref": "#/$defs/textSection" },
+          { "$ref": "#/$defs/wideImageSection" },
+          { "$ref": "#/$defs/imageGridSection" },
+          { "$ref": "#/$defs/textWithImageSection" },
+          { "$ref": "#/$defs/playerQuoteSection" }
+        ]
+      }
+    },
+    "status": { "$ref": "#/$defs/publicationStatus" },
+    "isMock": { "type": "boolean" }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+    "publicationStatus": { "enum": ["draft", "pending", "published", "rejected", "archived"] },
+    "textSection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "body"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "type": { "const": "text" },
+        "body": { "type": "string", "minLength": 1 }
+      }
+    },
+    "wideImageSection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "assetId", "caption"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "type": { "const": "wide-image" },
+        "assetId": { "type": "string", "pattern": "^media-[a-z0-9]+$" },
+        "caption": { "type": "string", "minLength": 1 }
+      }
+    },
+    "imageGridSection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "assetIds"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "type": { "const": "image-grid" },
+        "assetIds": {
+          "type": "array",
+          "minItems": 2,
+          "items": { "type": "string", "pattern": "^media-[a-z0-9]+$" },
+          "uniqueItems": true
+        },
+        "caption": { "type": "string" }
+      }
+    },
+    "textWithImageSection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "body", "assetId", "imagePosition"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "type": { "const": "text-with-image" },
+        "body": { "type": "string", "minLength": 1 },
+        "assetId": { "type": "string", "pattern": "^media-[a-z0-9]+$" },
+        "imagePosition": { "enum": ["left", "right"] }
+      }
+    },
+    "playerQuoteSection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "playerId", "quote"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "type": { "const": "player-quote" },
+        "playerId": { "$ref": "#/$defs/id" },
+        "quote": { "type": "string", "minLength": 1, "maxLength": 1000 }
+      }
+    }
+  }
+}

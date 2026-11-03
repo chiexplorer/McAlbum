@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mcalbum.local/schema/photo.schema.json",
+  "title": "Photo",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "title",
+    "description",
+    "assetId",
+    "capturedAt",
+    "timeZone",
+    "tags",
+    "status",
+    "isMock",
+    "featured",
+    "displayVariant"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "$ref": "#/$defs/id" },
+    "title": { "type": "string", "minLength": 1 },
+    "description": { "type": "string" },
+    "assetId": { "type": "string", "pattern": "^media-[a-z0-9]+$" },
+    "capturedAt": { "type": "string", "format": "date-time" },
+    "timeZone": { "const": "Asia/Shanghai" },
+    "worldDay": { "type": ["integer", "null"], "minimum": 0 },
+    "photographerId": { "type": ["string", "null"] },
+    "playerIds": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/id" },
+      "uniqueItems": true
+    },
+    "storyIds": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/id" },
+      "uniqueItems": true
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "status": { "$ref": "#/$defs/publicationStatus" },
+    "isMock": { "type": "boolean" },
+    "featured": { "type": "boolean" },
+    "displayVariant": { "enum": ["featured", "normal", "portrait", "note"] },
+    "comments": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/comment" }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "publicationStatus": {
+      "enum": ["draft", "pending", "published", "rejected", "archived"]
+    },
+    "comment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "authorPlayerId", "body", "status", "createdAt"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "authorPlayerId": { "$ref": "#/$defs/id" },
+        "body": { "type": "string", "minLength": 1, "maxLength": 1000 },
+        "status": { "enum": ["published", "hidden"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "hiddenReason": { "type": ["string", "null"], "maxLength": 500 }
+      }
+    }
+  }
+}

@@ -1,0 +1,9 @@
+<script setup lang="ts">
+const api = useManageApi(); const missing = ref(false); const error = ref(''); const message = ref('')
+const form = reactive({ name: '', bio: '', status: 'private', joined_at: '', avatar_asset_id: '' })
+useHead({ title: '玩家档案 · McAlbum' })
+onMounted(async () => { if (!await api.restore()) return; try { const profile = await api.request<Record<string, string | null>>('/manage/profile'); Object.assign(form, { ...profile, joined_at: profile.joined_at || '', avatar_asset_id: profile.avatar_asset_id || '' }) } catch { missing.value = true; form.name = api.session.value?.user.display_name || '' } })
+async function save() { error.value = ''; try { await api.request('/manage/profile', { method: 'PUT', body: { ...form, joined_at: form.joined_at || null, avatar_asset_id: form.avatar_asset_id || null } }); missing.value = false; message.value = '玩家档案已保存。公开状态仍由你选择。' } catch (caught) { error.value = api.errorMessage(caught) } }
+</script>
+
+<template><ManageShell><header class="manage-heading"><p class="section-kicker">玩家档案</p><h1>{{ missing ? '建立你的档案' : '维护你的档案' }}</h1><p>账号用于登录，玩家档案用于公开展示。即使账号以后停用，历史记录也不会被级联删除。</p></header><form class="manage-form" @submit.prevent="save"><label>公开名称<input v-model.trim="form.name" required></label><label>加入日期<input v-model="form.joined_at" type="date"></label><label>公开范围<select v-model="form.status"><option value="private">暂不公开</option><option value="resident">当前玩家</option><option value="historical">历史玩家</option></select></label><label>头像媒体 ID<input v-model.trim="form.avatar_asset_id" placeholder="可留空"></label><label>个人简介<textarea v-model.trim="form.bio" rows="7" maxlength="4000" /></label><ManageNotice v-if="message" kind="success">{{ message }}</ManageNotice><ManageNotice v-if="error" kind="error">{{ error }}</ManageNotice><button class="manage-primary" type="submit">保存玩家档案</button></form></ManageShell></template>

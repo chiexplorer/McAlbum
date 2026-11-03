@@ -1,0 +1,17 @@
+{
+  "$schema": "../../contracts/json-schema/photo.schema.json",
+  "id": "mid-autumn-gate-group-03",
+  "title": "广场中央的集合",
+  "description": "几名玩家在门楼前重新排成一列，广场地灯勾勒出傍晚活动区域。",
+  "assetId": "media-f924c0377ab9440bb627c6950c1203af",
+  "capturedAt": "2026-09-25T21:49:38+08:00",
+  "timeZone": "Asia/Shanghai",
+  "playerIds": [],
+  "storyIds": ["2026-mid-autumn-night"],
+  "tags": ["中秋", "合影", "广场"],
+  "status": "draft",
+  "isMock": true,
+  "featured": false,
+  "displayVariant": "normal",
+  "comments": []
+}

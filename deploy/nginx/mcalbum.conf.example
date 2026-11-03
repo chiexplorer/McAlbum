@@ -1,0 +1,28 @@
+server {
+    listen 80;
+    server_name mcalbum.example.com;
+
+    # Nuxt 只作为静态页面框架部署。
+    root /srv/mcalbum/apps/web/.output/public;
+    index index.html;
+
+    # 新上传的公开变体直接来自持久化媒体目录，不依赖前端重建。
+    location ^~ /media/ {
+        alias /srv/mcalbum/storage/variants/;
+        expires 30d;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # 推荐使用同源 /api，避免生产环境额外维护跨域规则。
+    location /api/ {
+        proxy_pass http://127.0.0.1:8000/api/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # 让尚未进入静态快照的新照片详情页交给 Nuxt 客户端路由加载。
+    location / {
+        try_files $uri $uri/ /200.html;
+    }
+}

@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mcalbum.local/schema/media-asset.schema.json",
+  "title": "Media asset",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "originalFilename",
+    "storageKey",
+    "mimeType",
+    "extension",
+    "byteSize",
+    "width",
+    "height",
+    "sha256",
+    "capturedAt",
+    "timeZone",
+    "altText",
+    "focalPoint",
+    "editorialStatus",
+    "processingStatus",
+    "allowOriginalDownload",
+    "variants",
+    "importedAt"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "$ref": "#/$defs/id" },
+    "originalFilename": { "type": "string", "minLength": 1 },
+    "storageKey": {
+      "type": "string",
+      "pattern": "^originals/[0-9]{4}/[0-9]{2}/media-[a-z0-9]+\\.(png|jpg|webp)$"
+    },
+    "mimeType": { "enum": ["image/png", "image/jpeg", "image/webp"] },
+    "extension": { "enum": ["png", "jpg", "webp"] },
+    "byteSize": { "type": "integer", "minimum": 1 },
+    "width": { "type": "integer", "minimum": 1 },
+    "height": { "type": "integer", "minimum": 1 },
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "capturedAt": { "type": "string", "format": "date-time" },
+    "timeZone": { "const": "Asia/Shanghai" },
+    "altText": { "type": "string", "minLength": 1, "maxLength": 240 },
+    "focalPoint": { "$ref": "#/$defs/focalPoint" },
+    "editorialStatus": { "enum": ["mock", "draft", "verified"] },
+    "processingStatus": { "enum": ["pending", "ready", "failed", "deleted"] },
+    "allowOriginalDownload": { "type": "boolean" },
+    "variants": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/variant" }
+    },
+    "importedAt": { "type": "string", "format": "date-time" }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^media-[a-z0-9]+$"
+    },
+    "focalPoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["x", "y"],
+      "properties": {
+        "x": { "type": "number", "minimum": 0, "maximum": 1 },
+        "y": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "variant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "storageKey", "mimeType", "byteSize", "width", "height", "sha256"],
+      "properties": {
+        "name": { "enum": ["placeholder", "w480", "w960", "w1440", "w1920"] },
+        "storageKey": {
+          "type": "string",
+          "pattern": "^variants/[0-9]{4}/[0-9]{2}/media-[a-z0-9]+/(placeholder|w480|w960|w1440|w1920)\\.webp$"
+        },
+        "mimeType": { "const": "image/webp" },
+        "byteSize": { "type": "integer", "minimum": 1 },
+        "width": { "type": "integer", "minimum": 1 },
+        "height": { "type": "integer", "minimum": 1 },
+        "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      }
+    }
+  }
+}

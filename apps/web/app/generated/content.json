@@ -1,0 +1,409 @@
+{
+  "site": {
+    "$schema": "../contracts/json-schema/site.schema.json",
+    "title": "McAlbum",
+    "description": "记录服务器中的地点、居民、作品与共同经历。",
+    "worldStatement": "这里保存的不只是截图，还有谁在这里做过什么，以及它为何值得被记住。",
+    "principles": [
+      {
+        "title": "尊重彼此的建造",
+        "description": "改动他人作品前先沟通，也为共同空间留下清楚的使用边界。"
+      },
+      {
+        "title": "保留生存的过程",
+        "description": "珍惜探索、采集与建设本身，不让效率抹去一起生活的痕迹。"
+      },
+      {
+        "title": "鼓励合作与分享",
+        "description": "欢迎互助、共建与记录，让每个人都能在世界里留下自己的章节。"
+      }
+    ],
+    "timeZone": "Asia/Shanghai",
+    "startedAt": "2026-10-25",
+    "worldDay": 1,
+    "minecraftVersion": "待确认",
+    "fabricVersion": "待确认"
+  },
+  "photos": [
+    {
+      "$schema": "../../contracts/json-schema/photo.schema.json",
+      "id": "festival-food-stall",
+      "title": "摊位上的食物",
+      "description": "玩家围在木质柜台前，花盆、餐具和灯笼让临时摊位具有生活场景的细节。",
+      "assetId": "media-ef92c1839b094cb68ec82100afe257a2",
+      "capturedAt": "2026-09-25T22:34:11+08:00",
+      "timeZone": "Asia/Shanghai",
+      "playerIds": [],
+      "storyIds": [
+        "2026-mid-autumn-night"
+      ],
+      "tags": [
+        "中秋",
+        "市集",
+        "食物",
+        "日常"
+      ],
+      "status": "draft",
+      "isMock": true,
+      "featured": false,
+      "displayVariant": "note",
+      "comments": [],
+      "photographerId": null
+    },
+    {
+      "$schema": "../../contracts/json-schema/photo.schema.json",
+      "id": "festival-market-group",
+      "title": "节日摊位前",
+      "description": "三名玩家在摆放着食物和木桌的摊位前停留，画面把活动从广场合影带回到日常互动。",
+      "assetId": "media-abeb613baa574b0e85be4f26ba06f9e6",
+      "capturedAt": "2026-09-25T22:31:55+08:00",
+      "timeZone": "Asia/Shanghai",
+      "playerIds": [],
+      "storyIds": [
+        "2026-mid-autumn-night"
+      ],
+      "tags": [
+        "中秋",
+        "市集",
+        "摊位",
+        "日常"
+      ],
+      "status": "draft",
+      "isMock": true,
+      "featured": false,
+      "displayVariant": "normal",
+      "comments": [],
+      "photographerId": null
+    },
+    {
+      "$schema": "../../contracts/json-schema/photo.schema.json",
+      "id": "lantern-stall-at-night",
+      "title": "夜里的空摊位",
+      "description": "没有玩家的柜台保留着红色灯笼和暖色灯光，成为活动间隙的一处安静画面。",
+      "assetId": "media-4e86d161fd5f462cbb97b1e8a637e629",
+      "capturedAt": "2026-09-25T22:45:35+08:00",
+      "timeZone": "Asia/Shanghai",
+      "playerIds": [],
+      "storyIds": [
+        "2026-mid-autumn-night"
+      ],
+      "tags": [
+        "中秋",
+        "市集",
+        "灯笼",
+        "夜景",
+        "空景"
+      ],
+      "status": "draft",
+      "isMock": true,
+      "featured": false,
+      "displayVariant": "note",
+      "comments": [],
+      "photographerId": null
+    },
+    {
+      "$schema": "../../contracts/json-schema/photo.schema.json",
+      "id": "lantern-street-after-event",
+      "title": "散场后的灯笼街",
+      "description": "人群离开后，石板路、树木和两侧建筑仍被红色灯笼与烛光照亮。",
+      "assetId": "media-32bb45698b774d7cba7ff4e2b63ce999",
+      "capturedAt": "2026-09-25T22:47:24+08:00",
+      "timeZone": "Asia/Shanghai",
+      "playerIds": [],
+      "storyIds": [
+        "2026-mid-autumn-night"
+      ],
+      "tags": [
+        "中秋",
+        "街道",
+        "灯笼",
+        "夜景",
+        "空景"
+      ],
+      "status": "draft",
+      "isMock": true,
+      "featured": true,
+      "displayVariant": "featured",
+      "comments": [],
+      "photographerId": null
+    },
+    {
+      "$schema": "../../contracts/json-schema/photo.schema.json",
+      "id": "mid-autumn-fireworks-01",
+      "title": "第一轮烟花",
+      "description": "夜色中的门楼和灯笼成为背景，玩家在烟花亮起时留下合影。",
+      "assetId": "media-2eb290c9ee2d469ba0e3f3d40bbdf049",
+      "capturedAt": "2026-09-25T22:26:31+08:00",
+      "timeZone": "Asia/Shanghai",
+      "playerIds": [],
+      "storyIds": [
+        "2026-mid-autumn-night"
+      ],
+      "tags": [
+        "中秋",
+        "烟花",
+        "夜景",
+        "合影"
+      ],
+      "status": "draft",
+      "isMock": true,
+      "featured": false,
+      "displayVariant": "normal",
+      "comments": [],
+      "photographerId": null
+    },
+    {
+      "$schema": "../../contracts/json-schema/photo.schema.json",
+      "id": "mid-autumn-fireworks-02",
+      "title": "橙色烟花升起",
+      "description": "玩家坐在广场边缘，橙色烟花照亮左侧夜空，远处仍能看到门楼的轮廓。",
+      "assetId": "media-dffde048448246e19e07e6a2295ed884",
+      "capturedAt": "2026-09-25T22:27:26+08:00",
+      "timeZone": "Asia/Shanghai",
+      "playerIds": [],
+      "storyIds": [
+        "2026-mid-autumn-night"
+      ],
+      "tags": [
+        "中秋",
+        "烟花",
+        "夜景"
+      ],
+      "status": "draft",
+      "isMock": true,
+      "featured": false,
+      "displayVariant": "normal",
+      "comments": [],
+      "photographerId": null
+    },
+    {
+      "$schema": "../../contracts/json-schema/photo.schema.json",
+      "id": "mid-autumn-fireworks-03",
+      "title": "烟花升起的时候",
+      "description": "粉色、紫色和绿色烟花在门楼上方铺开，三名玩家坐在树篱边看向镜头。",
+      "assetId": "media-c71c4b37e29d4893ab73c5a008e8735d",
+      "capturedAt": "2026-09-25T22:28:37+08:00",
+      "timeZone": "Asia/Shanghai",
+      "playerIds": [],
+      "storyIds": [
+        "2026-mid-autumn-night"
+      ],
+      "tags": [
+        "中秋",
+        "烟花",
+        "夜景",
+        "合影"
+      ],
+      "status": "draft",
+      "isMock": true,
+      "featured": true,
+      "displayVariant": "featured",
+      "comments": [],
+      "photographerId": null
+    },
+    {
+      "$schema": "../../contracts/json-schema/photo.schema.json",
+      "id": "mid-autumn-gate-daylight",
+      "title": "晴空下的门楼",
+      "description": "明亮天空让门楼的红色结构和灰白基座更加清楚，合影也记录了活动区域的整体尺度。",
+      "assetId": "media-e0ee4cab387446828668eaf3bb5a89a7",
+      "capturedAt": "2026-09-25T21:50:30+08:00",
+      "timeZone": "Asia/Shanghai",
+      "playerIds": [],
+      "storyIds": [
+        "2026-mid-autumn-night"
+      ],
+      "tags": [
+        "中秋",
+        "合影",
+        "门楼",
+        "白天"
+      ],
+      "status": "draft",
+      "isMock": true,
+      "featured": false,
+      "displayVariant": "normal",
+      "comments": [],
+      "photographerId": null
+    },
+    {
+      "$schema": "../../contracts/json-schema/photo.schema.json",
+      "id": "mid-autumn-gate-group-01",
+      "title": "灯笼亮起之前",
+      "description": "玩家在太极广场附近集合，门楼、灯笼和傍晚天空组成了中秋夜的开场画面。",
+      "assetId": "media-4e6157672d8141b88712b21c54908874",
+      "capturedAt": "2026-09-25T21:49:21+08:00",
+      "timeZone": "Asia/Shanghai",
+      "playerIds": [],
+      "storyIds": [
+        "2026-mid-autumn-night"
+      ],
+      "tags": [
+        "中秋",
+        "合影",
+        "门楼",
+        "烟花"
+      ],
+      "status": "draft",
+      "isMock": true,
+      "featured": true,
+      "displayVariant": "featured",
+      "comments": [],
+      "photographerId": null
+    },
+    {
+      "$schema": "../../contracts/json-schema/photo.schema.json",
+      "id": "mid-autumn-gate-group-02",
+      "title": "门楼下的第二张合影",
+      "description": "玩家调整了站位，在灯笼和烟花之间留下另一张更活泼的集体照片。",
+      "assetId": "media-41b6825247ac44f18907c07540b59b94",
+      "capturedAt": "2026-09-25T21:49:23+08:00",
+      "timeZone": "Asia/Shanghai",
+      "playerIds": [],
+      "storyIds": [
+        "2026-mid-autumn-night"
+      ],
+      "tags": [
+        "中秋",
+        "合影",
+        "门楼"
+      ],
+      "status": "draft",
+      "isMock": true,
+      "featured": false,
+      "displayVariant": "normal",
+      "comments": [],
+      "photographerId": null
+    },
+    {
+      "$schema": "../../contracts/json-schema/photo.schema.json",
+      "id": "mid-autumn-gate-group-03",
+      "title": "广场中央的集合",
+      "description": "几名玩家在门楼前重新排成一列，广场地灯勾勒出傍晚活动区域。",
+      "assetId": "media-f924c0377ab9440bb627c6950c1203af",
+      "capturedAt": "2026-09-25T21:49:38+08:00",
+      "timeZone": "Asia/Shanghai",
+      "playerIds": [],
+      "storyIds": [
+        "2026-mid-autumn-night"
+      ],
+      "tags": [
+        "中秋",
+        "合影",
+        "广场"
+      ],
+      "status": "draft",
+      "isMock": true,
+      "featured": false,
+      "displayVariant": "normal",
+      "comments": [],
+      "photographerId": null
+    },
+    {
+      "$schema": "../../contracts/json-schema/photo.schema.json",
+      "id": "taiji-square-overlook-01",
+      "title": "从广场望向出生点",
+      "description": "从高处越过合影玩家，可以看到周边建筑、道路、绿化和远处山坡共同组成的聚落。",
+      "assetId": "media-464344fd2a694f98b6af39a893def807",
+      "capturedAt": "2026-09-25T21:52:32+08:00",
+      "timeZone": "Asia/Shanghai",
+      "playerIds": [],
+      "storyIds": [
+        "2026-mid-autumn-night"
+      ],
+      "tags": [
+        "中秋",
+        "广场",
+        "全景",
+        "出生点"
+      ],
+      "status": "draft",
+      "isMock": true,
+      "featured": false,
+      "displayVariant": "featured",
+      "comments": [],
+      "photographerId": null
+    },
+    {
+      "$schema": "../../contracts/json-schema/photo.schema.json",
+      "id": "taiji-square-overlook-02",
+      "title": "广场周边的建设痕迹",
+      "description": "中式建筑、像素画、道路和山地景观同时进入画面，呈现出生点附近长期建设形成的层次。",
+      "assetId": "media-a60d8f2a43a2447e810504bf90c1285e",
+      "capturedAt": "2026-09-25T21:52:35+08:00",
+      "timeZone": "Asia/Shanghai",
+      "playerIds": [],
+      "storyIds": [
+        "2026-mid-autumn-night"
+      ],
+      "tags": [
+        "中秋",
+        "广场",
+        "全景",
+        "建筑"
+      ],
+      "status": "draft",
+      "isMock": true,
+      "featured": true,
+      "displayVariant": "featured",
+      "comments": [],
+      "photographerId": null
+    }
+  ],
+  "stories": [
+    {
+      "$schema": "../../contracts/json-schema/story.schema.json",
+      "id": "2026-mid-autumn-night",
+      "title": "2026 年中秋夜",
+      "summary": "一次围绕中式布景、节日灯笼、市集摊位和烟花表演展开的服务器聚会。",
+      "coverAssetId": "media-c71c4b37e29d4893ab73c5a008e8735d",
+      "playerIds": [],
+      "sections": [
+        {
+          "id": "opening",
+          "type": "text",
+          "body": "这次中秋夜以太极广场附近的中式建筑为背景。灯笼、摊位和烟花把原本熟悉的出生点区域变成了一个短暂的节日现场。"
+        },
+        {
+          "id": "square-overview",
+          "type": "wide-image",
+          "assetId": "media-a60d8f2a43a2447e810504bf90c1285e",
+          "caption": "从高处望向广场周边，可以看到建筑、道路、绿化和玩家共同留下的建设痕迹。"
+        },
+        {
+          "id": "gathering",
+          "type": "image-grid",
+          "assetIds": [
+            "media-4e6157672d8141b88712b21c54908874",
+            "media-f924c0377ab9440bb627c6950c1203af",
+            "media-e0ee4cab387446828668eaf3bb5a89a7"
+          ],
+          "caption": "活动开始前后，玩家在门楼和灯笼下尝试了几种不同的合影站位。"
+        },
+        {
+          "id": "market",
+          "type": "text-with-image",
+          "body": "摊位和食物让这次活动不只有宏大的门楼与烟花，也留下了玩家停留、交谈和分享物品的日常片段。",
+          "assetId": "media-abeb613baa574b0e85be4f26ba06f9e6",
+          "imagePosition": "right"
+        },
+        {
+          "id": "fireworks",
+          "type": "wide-image",
+          "assetId": "media-c71c4b37e29d4893ab73c5a008e8735d",
+          "caption": "夜色落下后，粉色和紫色烟花在门楼上方铺开。"
+        },
+        {
+          "id": "after-the-event",
+          "type": "text-with-image",
+          "body": "散场后，街道上的灯笼和烛光继续照亮石板路。安静的空景为这组记录留下了自然的结尾。",
+          "assetId": "media-32bb45698b774d7cba7ff4e2b63ce999",
+          "imagePosition": "left"
+        }
+      ],
+      "status": "draft",
+      "isMock": true
+    }
+  ],
+  "players": []
+}

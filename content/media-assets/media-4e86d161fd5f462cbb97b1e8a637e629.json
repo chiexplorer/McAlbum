@@ -1,0 +1,70 @@
+{
+  "$schema": "../../contracts/json-schema/media-asset.schema.json",
+  "id": "media-4e86d161fd5f462cbb97b1e8a637e629",
+  "originalFilename": "2026-09-25_22.45.35.png",
+  "storageKey": "originals/2026/09/media-4e86d161fd5f462cbb97b1e8a637e629.png",
+  "mimeType": "image/png",
+  "extension": "png",
+  "byteSize": 6282375,
+  "width": 2560,
+  "height": 1369,
+  "sha256": "97fceae6880b17b4c9b1db71dc8807d02a292dbabde5be5e8ef7d74520181d9f",
+  "capturedAt": "2026-09-25T22:45:35+08:00",
+  "timeZone": "Asia/Shanghai",
+  "altText": "夜间摊位的柜台和红色灯笼，远处白墙木构建筑被灯光照亮。",
+  "focalPoint": {
+    "x": 0.5,
+    "y": 0.5
+  },
+  "editorialStatus": "draft",
+  "processingStatus": "ready",
+  "allowOriginalDownload": false,
+  "variants": [
+    {
+      "name": "placeholder",
+      "storageKey": "variants/2026/09/media-4e86d161fd5f462cbb97b1e8a637e629/placeholder.webp",
+      "mimeType": "image/webp",
+      "byteSize": 250,
+      "width": 48,
+      "height": 26,
+      "sha256": "cbee674884a7f15c33bfc2cda63479ed8c0655ed1b9292f835033f2f3ccbd079"
+    },
+    {
+      "name": "w480",
+      "storageKey": "variants/2026/09/media-4e86d161fd5f462cbb97b1e8a637e629/w480.webp",
+      "mimeType": "image/webp",
+      "byteSize": 11790,
+      "width": 480,
+      "height": 257,
+      "sha256": "c79c04760dec3e5b145e6dc89ae065460f30a39721c518e46dd5a330f2341bfe"
+    },
+    {
+      "name": "w960",
+      "storageKey": "variants/2026/09/media-4e86d161fd5f462cbb97b1e8a637e629/w960.webp",
+      "mimeType": "image/webp",
+      "byteSize": 28804,
+      "width": 960,
+      "height": 513,
+      "sha256": "9902acf3b2a7178912e6c3839e7f1cc8f1c8fc95a4baa49940048cf522c04f9a"
+    },
+    {
+      "name": "w1440",
+      "storageKey": "variants/2026/09/media-4e86d161fd5f462cbb97b1e8a637e629/w1440.webp",
+      "mimeType": "image/webp",
+      "byteSize": 47762,
+      "width": 1440,
+      "height": 770,
+      "sha256": "927b6232549cc4c6090759e16d115c386d07eed21e1493ab85de645c87a0ef9d"
+    },
+    {
+      "name": "w1920",
+      "storageKey": "variants/2026/09/media-4e86d161fd5f462cbb97b1e8a637e629/w1920.webp",
+      "mimeType": "image/webp",
+      "byteSize": 66044,
+      "width": 1920,
+      "height": 1027,
+      "sha256": "18f68b4a1931994fb2bc9a72b795c62d9fc47c898bb9f22cf64ac26ad3e71e55"
+    }
+  ],
+  "importedAt": "2026-10-25T05:07:35+00:00"
+}

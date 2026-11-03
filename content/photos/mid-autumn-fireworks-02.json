@@ -1,0 +1,17 @@
+{
+  "$schema": "../../contracts/json-schema/photo.schema.json",
+  "id": "mid-autumn-fireworks-02",
+  "title": "橙色烟花升起",
+  "description": "玩家坐在广场边缘，橙色烟花照亮左侧夜空，远处仍能看到门楼的轮廓。",
+  "assetId": "media-dffde048448246e19e07e6a2295ed884",
+  "capturedAt": "2026-09-25T22:27:26+08:00",
+  "timeZone": "Asia/Shanghai",
+  "playerIds": [],
+  "storyIds": ["2026-mid-autumn-night"],
+  "tags": ["中秋", "烟花", "夜景"],
+  "status": "draft",
+  "isMock": true,
+  "featured": false,
+  "displayVariant": "normal",
+  "comments": []
+}

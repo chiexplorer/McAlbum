@@ -1,0 +1,17 @@
+{
+  "$schema": "../../contracts/json-schema/photo.schema.json",
+  "id": "mid-autumn-gate-group-01",
+  "title": "灯笼亮起之前",
+  "description": "玩家在太极广场附近集合，门楼、灯笼和傍晚天空组成了中秋夜的开场画面。",
+  "assetId": "media-4e6157672d8141b88712b21c54908874",
+  "capturedAt": "2026-09-25T21:49:21+08:00",
+  "timeZone": "Asia/Shanghai",
+  "playerIds": [],
+  "storyIds": ["2026-mid-autumn-night"],
+  "tags": ["中秋", "合影", "门楼", "烟花"],
+  "status": "draft",
+  "isMock": true,
+  "featured": true,
+  "displayVariant": "featured",
+  "comments": []
+}

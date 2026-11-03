@@ -1,0 +1,17 @@
+{
+  "$schema": "../../contracts/json-schema/photo.schema.json",
+  "id": "festival-market-group",
+  "title": "节日摊位前",
+  "description": "三名玩家在摆放着食物和木桌的摊位前停留，画面把活动从广场合影带回到日常互动。",
+  "assetId": "media-abeb613baa574b0e85be4f26ba06f9e6",
+  "capturedAt": "2026-09-25T22:31:55+08:00",
+  "timeZone": "Asia/Shanghai",
+  "playerIds": [],
+  "storyIds": ["2026-mid-autumn-night"],
+  "tags": ["中秋", "市集", "摊位", "日常"],
+  "status": "draft",
+  "isMock": true,
+  "featured": false,
+  "displayVariant": "normal",
+  "comments": []
+}

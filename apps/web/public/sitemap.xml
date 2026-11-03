@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>http://localhost:3000/</loc></url>
+  <url><loc>http://localhost:3000/album</loc></url>
+  <url><loc>http://localhost:3000/stories</loc></url>
+  <url><loc>http://localhost:3000/players</loc></url>
+  <url><loc>http://localhost:3000/photos/festival-food-stall</loc></url>
+  <url><loc>http://localhost:3000/photos/festival-market-group</loc></url>
+  <url><loc>http://localhost:3000/photos/lantern-stall-at-night</loc></url>
+  <url><loc>http://localhost:3000/photos/lantern-street-after-event</loc></url>
+  <url><loc>http://localhost:3000/photos/mid-autumn-fireworks-01</loc></url>
+  <url><loc>http://localhost:3000/photos/mid-autumn-fireworks-02</loc></url>
+  <url><loc>http://localhost:3000/photos/mid-autumn-fireworks-03</loc></url>
+  <url><loc>http://localhost:3000/photos/mid-autumn-gate-daylight</loc></url>
+  <url><loc>http://localhost:3000/photos/mid-autumn-gate-group-01</loc></url>
+  <url><loc>http://localhost:3000/photos/mid-autumn-gate-group-02</loc></url>
+  <url><loc>http://localhost:3000/photos/mid-autumn-gate-group-03</loc></url>
+  <url><loc>http://localhost:3000/photos/taiji-square-overlook-01</loc></url>
+  <url><loc>http://localhost:3000/photos/taiji-square-overlook-02</loc></url>
+  <url><loc>http://localhost:3000/stories/2026-mid-autumn-night</loc></url>
+</urlset>

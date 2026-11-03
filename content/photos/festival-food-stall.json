@@ -1,0 +1,17 @@
+{
+  "$schema": "../../contracts/json-schema/photo.schema.json",
+  "id": "festival-food-stall",
+  "title": "摊位上的食物",
+  "description": "玩家围在木质柜台前，花盆、餐具和灯笼让临时摊位具有生活场景的细节。",
+  "assetId": "media-ef92c1839b094cb68ec82100afe257a2",
+  "capturedAt": "2026-09-25T22:34:11+08:00",
+  "timeZone": "Asia/Shanghai",
+  "playerIds": [],
+  "storyIds": ["2026-mid-autumn-night"],
+  "tags": ["中秋", "市集", "食物", "日常"],
+  "status": "draft",
+  "isMock": true,
+  "featured": false,
+  "displayVariant": "note",
+  "comments": []
+}

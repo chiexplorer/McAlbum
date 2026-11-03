@@ -1,0 +1,8 @@
+originals/*
+!originals/.gitkeep
+variants/*
+!variants/.gitkeep
+temporary/*
+!temporary/.gitkeep
+quarantine/*
+!quarantine/.gitkeep

@@ -1,0 +1,17 @@
+{
+  "$schema": "../../contracts/json-schema/photo.schema.json",
+  "id": "taiji-square-overlook-01",
+  "title": "从广场望向出生点",
+  "description": "从高处越过合影玩家，可以看到周边建筑、道路、绿化和远处山坡共同组成的聚落。",
+  "assetId": "media-464344fd2a694f98b6af39a893def807",
+  "capturedAt": "2026-09-25T21:52:32+08:00",
+  "timeZone": "Asia/Shanghai",
+  "playerIds": [],
+  "storyIds": ["2026-mid-autumn-night"],
+  "tags": ["中秋", "广场", "全景", "出生点"],
+  "status": "draft",
+  "isMock": true,
+  "featured": false,
+  "displayVariant": "featured",
+  "comments": []
+}

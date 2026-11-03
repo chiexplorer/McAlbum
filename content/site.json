@@ -1,0 +1,16 @@
+{
+  "$schema": "../contracts/json-schema/site.schema.json",
+  "title": "McAlbum",
+  "description": "记录服务器中的地点、居民、作品与共同经历。",
+  "worldStatement": "这里保存的不只是截图，还有谁在这里做过什么，以及它为何值得被记住。",
+  "principles": [
+    { "title": "尊重彼此的建造", "description": "改动他人作品前先沟通，也为共同空间留下清楚的使用边界。" },
+    { "title": "保留生存的过程", "description": "珍惜探索、采集与建设本身，不让效率抹去一起生活的痕迹。" },
+    { "title": "鼓励合作与分享", "description": "欢迎互助、共建与记录，让每个人都能在世界里留下自己的章节。" }
+  ],
+  "timeZone": "Asia/Shanghai",
+  "startedAt": "2026-10-25",
+  "worldDay": 1,
+  "minecraftVersion": "待确认",
+  "fabricVersion": "待确认"
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "../../contracts/json-schema/photo.schema.json",
+  "id": "taiji-square-overlook-02",
+  "title": "广场周边的建设痕迹",
+  "description": "中式建筑、像素画、道路和山地景观同时进入画面，呈现出生点附近长期建设形成的层次。",
+  "assetId": "media-a60d8f2a43a2447e810504bf90c1285e",
+  "capturedAt": "2026-09-25T21:52:35+08:00",
+  "timeZone": "Asia/Shanghai",
+  "playerIds": [],
+  "storyIds": ["2026-mid-autumn-night"],
+  "tags": ["中秋", "广场", "全景", "建筑"],
+  "status": "draft",
+  "isMock": true,
+  "featured": true,
+  "displayVariant": "featured",
+  "comments": []
+}
