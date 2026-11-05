@@ -59,6 +59,7 @@ export const publicMediaAssetSchema = z
     id: mediaIdSchema,
     altText: z.string().min(1).max(240),
     focalPoint: focalPointSchema,
+    originalUrl: z.string().regex(/^\/originals\/[0-9]{4}\/[0-9]{2}\/media-[a-z0-9]+\.(png|jpg|webp)$/),
     variants: z.array(mediaVariantSchema).min(1),
   })
   .strict()

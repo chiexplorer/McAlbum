@@ -23,6 +23,7 @@ const entry = {
     id: 'media-livetest',
     altText: '用于测试的 Minecraft 截图',
     focalPoint: { x: 0.5, y: 0.5 },
+    originalUrl: '/originals/2026/10/media-livetest.png',
     variants: [{
       name: 'w480',
       storageKey: 'variants/2026/10/media-livetest/w480.webp',

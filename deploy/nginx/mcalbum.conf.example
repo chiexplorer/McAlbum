@@ -13,6 +13,15 @@ server {
         add_header Cache-Control "public, immutable";
     }
 
+    # 原图面向所有访客下载，文件名仍使用不可预测的媒体 ID。
+    location ^~ /originals/ {
+        alias /srv/mcalbum/storage/originals/;
+        expires 30d;
+        add_header Cache-Control "public, immutable";
+        add_header Content-Disposition "attachment";
+        add_header X-Content-Type-Options "nosniff";
+    }
+
     # 推荐使用同源 /api，避免生产环境额外维护跨域规则。
     location /api/ {
         proxy_pass http://127.0.0.1:8000/api/;

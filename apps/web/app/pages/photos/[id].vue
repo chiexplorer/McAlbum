@@ -52,7 +52,10 @@ usePageSeo({
         <RelatedContentList :items="[
           ...content.stories.map(story => ({ title: story.title, meta: '历史专题', to: `/stories/${story.id}` })),
         ]" />
-        <ShareButton :title="content.photo.title" :text="content.photo.description" />
+        <div class="photo-detail__actions">
+          <a class="photo-detail__download" :href="content.asset.originalUrl" download>下载原图</a>
+          <ShareButton :title="content.photo.title" :text="content.photo.description" />
+        </div>
       </aside>
     </div>
 

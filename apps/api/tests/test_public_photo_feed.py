@@ -92,6 +92,9 @@ def test_photo_feed_uses_beijing_month_and_stable_cursor() -> None:
                 tag="时间流测试",
             )
             assert [item.photo.id for item in first.items] == [photos[0][2].id]
+            assert first.items[0].asset.original_url == (
+                f"/originals/test/{photos[0][0].id}.png"
+            )
             assert first.has_more is True
             assert first.next_cursor is not None
 

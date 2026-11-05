@@ -2523,6 +2523,10 @@
           "focalPoint": {
             "$ref": "#/components/schemas/PublicFocalPoint"
           },
+          "originalUrl": {
+            "type": "string",
+            "title": "Originalurl"
+          },
           "variants": {
             "items": {
               "$ref": "#/components/schemas/PublicMediaVariant"
@@ -2537,6 +2541,7 @@
           "id",
           "altText",
           "focalPoint",
+          "originalUrl",
           "variants"
         ],
         "title": "PublicMediaAsset"

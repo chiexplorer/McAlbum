@@ -207,10 +207,13 @@ class PublicContentService:
 
     @staticmethod
     def _asset(asset: MediaAsset, variants: list[MediaVariant]) -> PublicMediaAsset:
+        if not asset.storage_key or not asset.storage_key.startswith("originals/"):
+            raise ValueError(f"媒体 {asset.id} 缺少有效原图存储键")
         return PublicMediaAsset(
             id=asset.id,
             alt_text=asset.alt_text,
             focal_point=PublicFocalPoint(x=float(asset.focal_x), y=float(asset.focal_y)),
+            original_url=f"/{asset.storage_key}",
             variants=[
                 PublicMediaVariant(
                     name=item.name,

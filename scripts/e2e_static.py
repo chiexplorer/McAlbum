@@ -58,6 +58,10 @@ def stub_public_api(page: Page) -> None:
         ),
         lambda route: route.fulfill(status=200, content_type="application/json", body="{}"),
     )
+    page.route(
+        re.compile(r"^http://(?:localhost|127\.0\.0\.1):8000/api/auth/session$"),
+        lambda route: route.fulfill(status=204),
+    )
 
 
 def main() -> int:
@@ -130,6 +134,12 @@ def main() -> int:
             assert page.locator(":focus").evaluate(
                 "element => element === document.querySelector('.justified-photo__media')"
             )
+
+            open_page(page, base_url, "/photos/mid-autumn-fireworks-03")
+            download = page.get_by_role("link", name="下载原图", exact=True)
+            assert download.count() == 1
+            assert download.get_attribute("href").startswith("/originals/")
+            assert download.get_attribute("download") is not None
 
             open_page(page, base_url, "/players")
             assert page.get_by_text("玩家档案等待本人确认").count() == 1

@@ -33,6 +33,7 @@ class PublicMediaAsset(PublicModel):
     id: str
     alt_text: str
     focal_point: PublicFocalPoint
+    original_url: str
     variants: list[PublicMediaVariant] = Field(min_length=1)
 
 

@@ -17,6 +17,15 @@ PUBLIC_DIR = ROOT / "apps" / "web" / "public"
 PUBLIC_FIELDS = ("id", "altText", "focalPoint", "variants")
 
 
+def public_original_url(source: dict[str, object]) -> str:
+    """把内部原图存储键转换为只读公开 URL。"""
+
+    storage_key = str(source["storageKey"])
+    if not storage_key.startswith("originals/"):
+        raise ValueError(f"原图存储键不符合约定：{storage_key}")
+    return f"/{storage_key}"
+
+
 def read_collection(name: str) -> list[dict[str, object]]:
     return [
         json.loads(path.read_text(encoding="utf-8"))
@@ -96,7 +105,9 @@ def main() -> None:
     public_assets = []
     for source_path in sorted(SOURCE_DIR.glob("*.json")):
         source = json.loads(source_path.read_text(encoding="utf-8"))
-        public_assets.append({field: source[field] for field in PUBLIC_FIELDS})
+        projection = {field: source[field] for field in PUBLIC_FIELDS}
+        projection["originalUrl"] = public_original_url(source)
+        public_assets.append(projection)
 
     write_json_atomic(OUTPUT_PATH, public_assets)
     write_json_atomic(CONTENT_OUTPUT_PATH, public_content_projection())

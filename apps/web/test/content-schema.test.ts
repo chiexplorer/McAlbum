@@ -39,10 +39,11 @@ describe('content schemas', () => {
     expect(photoSchema.parse({ ...photo, description: '' }).description).toBe('')
   })
 
-  it('keeps the browser media projection free of original-file metadata', () => {
+  it('only exposes the public original URL from original-file metadata', () => {
     const assets = publicMediaAssetSchema.array().parse(readJson(publicMediaPath))
     expect(assets).toHaveLength(readCollection('media-assets').length)
     assets.forEach((asset) => {
+      expect(asset.originalUrl).toMatch(/^\/originals\//)
       expect(asset).not.toHaveProperty('storageKey')
       expect(asset).not.toHaveProperty('originalFilename')
       expect(asset).not.toHaveProperty('sha256')
