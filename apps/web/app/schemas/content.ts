@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 const entityIdSchema = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
-const mediaIdSchema = z.string().regex(/^media-[a-z0-9]+$/)
+const mediaIdSchema = z.string().regex(/^media-[a-z0-9]+(?:-[a-z0-9]+)*$/)
 const schemaReference = z.string().optional()
 const timestampSchema = z.iso.datetime({ offset: true })
 const beijingTimeZoneSchema = z.literal('Asia/Shanghai')
@@ -44,7 +44,7 @@ const mediaVariantSchema = z
     name: z.enum(['placeholder', 'w480', 'w960', 'w1440', 'w1920']),
     storageKey: z
       .string()
-      .regex(/^variants\/[0-9]{4}\/[0-9]{2}\/media-[a-z0-9]+\/(placeholder|w480|w960|w1440|w1920)\.webp$/),
+      .regex(/^(?:variants\/[0-9]{4}\/[0-9]{2}\/media-[a-z0-9]+|built-in-stories\/[a-z0-9]+(?:-[a-z0-9]+)*\/media-[a-z0-9]+(?:-[a-z0-9]+)*)\/(placeholder|w480|w960|w1440|w1920)\.webp$/),
     mimeType: z.literal('image/webp'),
     byteSize: z.number().int().positive(),
     width: z.number().int().positive(),
@@ -53,16 +53,20 @@ const mediaVariantSchema = z
   })
   .strict()
 
-// 独立声明浏览器公开契约，避免完整媒体 Schema 的内部字段名进入前端产物。
-export const publicMediaAssetSchema = z
+// 展示媒体不强制携带原图地址，便于内置作品集只保存经优化的公开变体。
+export const displayMediaAssetSchema = z
   .object({
     id: mediaIdSchema,
     altText: z.string().min(1).max(240),
     focalPoint: focalPointSchema,
-    originalUrl: z.string().regex(/^\/originals\/[0-9]{4}\/[0-9]{2}\/media-[a-z0-9]+\.(png|jpg|webp)$/),
     variants: z.array(mediaVariantSchema).min(1),
   })
   .strict()
+
+// 用户上传媒体在展示契约之上增加原图下载地址。
+export const publicMediaAssetSchema = displayMediaAssetSchema.extend({
+  originalUrl: z.string().regex(/^\/originals\/[0-9]{4}\/[0-9]{2}\/media-[a-z0-9]+\.(png|jpg|webp)$/),
+}).strict()
 
 const photoCommentSchema = z
   .object({
@@ -148,6 +152,15 @@ export const storySchema = z
   })
   .strict()
 
+export const builtInStoryPackageSchema = z
+  .object({
+    $schema: schemaReference,
+    id: entityIdSchema,
+    story: storySchema,
+    assets: z.array(displayMediaAssetSchema).min(1),
+  })
+  .strict()
+
 export const playerSchema = z
   .object({
     $schema: schemaReference,
@@ -162,7 +175,9 @@ export const playerSchema = z
   .strict()
 
 export type SiteContent = z.infer<typeof siteContentSchema>
+export type DisplayMediaAsset = z.infer<typeof displayMediaAssetSchema>
 export type PublicMediaAsset = z.infer<typeof publicMediaAssetSchema>
+export type BuiltInStoryPackage = z.infer<typeof builtInStoryPackageSchema>
 export type Photo = z.infer<typeof photoSchema>
 export type Story = z.infer<typeof storySchema>
 export type Player = z.infer<typeof playerSchema>

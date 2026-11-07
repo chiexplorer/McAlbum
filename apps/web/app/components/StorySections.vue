@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type { PublicMediaAsset, Story } from '~/schemas/content'
+import type { DisplayMediaAsset, Story } from '~/schemas/content'
 
 const props = defineProps<{
   story: Story
-  assetsById: Map<string, PublicMediaAsset>
+  assetsById: Map<string, DisplayMediaAsset>
 }>()
 
-function assetFor(id: string): PublicMediaAsset {
+function assetFor(id: string): DisplayMediaAsset {
   const asset = props.assetsById.get(id)
   if (!asset) throw new Error(`专题引用的媒体 ${id} 不存在`)
   return asset

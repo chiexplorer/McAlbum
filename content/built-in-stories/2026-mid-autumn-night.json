@@ -1,0 +1,445 @@
+{
+    "$schema":  "../../contracts/json-schema/built-in-story.schema.json",
+    "id":  "2026-mid-autumn-night",
+    "story":  {
+                  "id":  "2026-mid-autumn-night",
+                  "title":  "2026 年中秋夜",
+                  "summary":  "一次围绕中式布景、节日灯笼、市集摊位和烟花表演展开的服务器聚会。",
+                  "coverAssetId":  "media-built-in-mid-autumn-fireworks",
+                  "playerIds":  [
+
+                                ],
+                  "sections":  [
+                                   {
+                                       "id":  "opening",
+                                       "type":  "text",
+                                       "body":  "这次中秋夜以太极广场附近的中式建筑为背景。灯笼、摊位和烟花把原本熟悉的出生点区域变成了一个短暂的节日现场。"
+                                   },
+                                   {
+                                       "id":  "square-overview",
+                                       "type":  "wide-image",
+                                       "assetId":  "media-built-in-mid-autumn-overview",
+                                       "caption":  "从高处望向广场周边，可以看到建筑、道路、绿化和玩家共同留下的建设痕迹。"
+                                   },
+                                   {
+                                       "id":  "gathering",
+                                       "type":  "image-grid",
+                                       "assetIds":  [
+                                                        "media-built-in-mid-autumn-gathering-01",
+                                                        "media-built-in-mid-autumn-gathering-02",
+                                                        "media-built-in-mid-autumn-gathering-03"
+                                                    ],
+                                       "caption":  "活动开始前后，玩家在门楼和灯笼下尝试了几种不同的合影站位。"
+                                   },
+                                   {
+                                       "id":  "market",
+                                       "type":  "text-with-image",
+                                       "body":  "摊位和食物让这次活动不只有宏大的门楼与烟花，也留下了玩家停留、交谈和分享物品的日常片段。",
+                                       "assetId":  "media-built-in-mid-autumn-market",
+                                       "imagePosition":  "right"
+                                   },
+                                   {
+                                       "id":  "fireworks",
+                                       "type":  "wide-image",
+                                       "assetId":  "media-built-in-mid-autumn-fireworks",
+                                       "caption":  "夜色落下后，粉色和紫色烟花在门楼上方铺开。"
+                                   },
+                                   {
+                                       "id":  "after-the-event",
+                                       "type":  "text-with-image",
+                                       "body":  "散场后，街道上的灯笼和烛光继续照亮石板路。安静的空景为这组记录留下了自然的结尾。",
+                                       "assetId":  "media-built-in-mid-autumn-after-event",
+                                       "imagePosition":  "left"
+                                   }
+                               ],
+                  "status":  "published",
+                  "isMock":  false
+              },
+    "assets":  [
+                   {
+                       "id":  "media-built-in-mid-autumn-fireworks",
+                       "altText":  "三名玩家角色坐在树篱边，粉色和紫色烟花在中式门楼上空绽放。",
+                       "focalPoint":  {
+                                          "x":  0.5,
+                                          "y":  0.78
+                                      },
+                       "variants":  [
+                                        {
+                                            "name":  "placeholder",
+                                            "storageKey":  "built-in-stories/2026-mid-autumn-night/media-built-in-mid-autumn-fireworks/placeholder.webp",
+                                            "mimeType":  "image/webp",
+                                            "byteSize":  372,
+                                            "width":  48,
+                                            "height":  26,
+                                            "sha256":  "17bb382f3e5d540beb10aea9407df9fd8196951a6cf96dd91d5a6859db1efbe3"
+                                        },
+                                        {
+                                            "name":  "w480",
+                                            "storageKey":  "built-in-stories/2026-mid-autumn-night/media-built-in-mid-autumn-fireworks/w480.webp",
+                                            "mimeType":  "image/webp",
+                                            "byteSize":  19454,
+                                            "width":  480,
+                                            "height":  257,
+                                            "sha256":  "056e675680e653c41f1ce890f7eb3f8e3d158b15a96a39d03e4d830498d35d8a"
+                                        },
+                                        {
+                                            "name":  "w960",
+                                            "storageKey":  "built-in-stories/2026-mid-autumn-night/media-built-in-mid-autumn-fireworks/w960.webp",
+                                            "mimeType":  "image/webp",
+                                            "byteSize":  44146,
+                                            "width":  960,
+                                            "height":  513,
+                                            "sha256":  "bd9be8e320a8280109938b025f75ec6ab3b9a0568cbe64ae315caae1d89d40eb"
+                                        },
+                                        {
+                                            "name":  "w1440",
+                                            "storageKey":  "built-in-stories/2026-mid-autumn-night/media-built-in-mid-autumn-fireworks/w1440.webp",
+                                            "mimeType":  "image/webp",
+                                            "byteSize":  70018,
+                                            "width":  1440,
+                                            "height":  770,
+                                            "sha256":  "d4a6b07d062b977837fb292c8ee5e19486511e70bc248ed68c8fc114c61be3fd"
+                                        },
+                                        {
+                                            "name":  "w1920",
+                                            "storageKey":  "built-in-stories/2026-mid-autumn-night/media-built-in-mid-autumn-fireworks/w1920.webp",
+                                            "mimeType":  "image/webp",
+                                            "byteSize":  97306,
+                                            "width":  1920,
+                                            "height":  1027,
+                                            "sha256":  "237e8120edf8ca7f422b23ce84e9a944e8ea4b5e02b38d259329f036e1b74283"
+                                        }
+                                    ]
+                   },
+                   {
+                       "id":  "media-built-in-mid-autumn-overview",
+                       "altText":  "多名玩家角色在广场高处合影，远处分布着中式建筑、像素画和绿化景观。",
+                       "focalPoint":  {
+                                          "x":  0.52,
+                                          "y":  0.72
+                                      },
+                       "variants":  [
+                                        {
+                                            "name":  "placeholder",
+                                            "storageKey":  "built-in-stories/2026-mid-autumn-night/media-built-in-mid-autumn-overview/placeholder.webp",
+                                            "mimeType":  "image/webp",
+                                            "byteSize":  462,
+                                            "width":  48,
+                                            "height":  26,
+                                            "sha256":  "42ee5b72ef3ae825db02991afe8a692f9f57548609a41df1ee78a1e8fe397c57"
+                                        },
+                                        {
+                                            "name":  "w480",
+                                            "storageKey":  "built-in-stories/2026-mid-autumn-night/media-built-in-mid-autumn-overview/w480.webp",
+                                            "mimeType":  "image/webp",
+                                            "byteSize":  25462,
+                                            "width":  480,
+                                            "height":  257,
+                                            "sha256":  "6448e869598225a8ea2f0fd73aefa4a6bbe014cd2d9dd726e1a2efb612a74f75"
+                                        },
+                                        {
+                                            "name":  "w960",
+                                            "storageKey":  "built-in-stories/2026-mid-autumn-night/media-built-in-mid-autumn-overview/w960.webp",
+                                            "mimeType":  "image/webp",
+                                            "byteSize":  75960,
+                                            "width":  960,
+                                            "height":  513,
+                                            "sha256":  "a257df1570fc586eba79cbc7c6571e10fc31fb9a49a7d684dffe505703c421e2"
+                                        },
+                                        {
+                                            "name":  "w1440",
+                                            "storageKey":  "built-in-stories/2026-mid-autumn-night/media-built-in-mid-autumn-overview/w1440.webp",
+                                            "mimeType":  "image/webp",
+                                            "byteSize":  144746,
+                                            "width":  1440,
+                                            "height":  770,
+                                            "sha256":  "0461829de716623bf982ea406f6fb25bff11488b79f158dd69eba23e9572511e"
+                                        },
+                                        {
+                                            "name":  "w1920",
+                                            "storageKey":  "built-in-stories/2026-mid-autumn-night/media-built-in-mid-autumn-overview/w1920.webp",
+                                            "mimeType":  "image/webp",
+                                            "byteSize":  230160,
+                                            "width":  1920,
+                                            "height":  1027,
+                                            "sha256":  "1ea414d7760ec813daf609150c02a256f01534a88f65bd6f8622d9544320bac0"
+                                        }
+                                    ]
+                   },
+                   {
+                       "id":  "media-built-in-mid-autumn-gathering-01",
+                       "altText":  "傍晚的红色中式门楼前，多名玩家角色并排合影，右上方有粉紫色烟花。",
+                       "focalPoint":  {
+                                          "x":  0.5,
+                                          "y":  0.66
+                                      },
+                       "variants":  [
+                                        {
+                                            "name":  "placeholder",
+                                            "storageKey":  "built-in-stories/2026-mid-autumn-night/media-built-in-mid-autumn-gathering-01/placeholder.webp",
+                                            "mimeType":  "image/webp",
+                                            "byteSize":  382,
+                                            "width":  48,
+                                            "height":  26,
+                                            "sha256":  "2c97c9da90d2ce9e1c65c19a4fa0faa75f5ea73c527a456544cbe2db618307f4"
+                                        },
+                                        {
+                                            "name":  "w480",
+                                            "storageKey":  "built-in-stories/2026-mid-autumn-night/media-built-in-mid-autumn-gathering-01/w480.webp",
+                                            "mimeType":  "image/webp",
+                                            "byteSize":  17926,
+                                            "width":  480,
+                                            "height":  257,
+                                            "sha256":  "2f0686097590f0cae1a76b955c6f49529c5999ae5b6843816808485d3312596c"
+                                        },
+                                        {
+                                            "name":  "w960",
+                                            "storageKey":  "built-in-stories/2026-mid-autumn-night/media-built-in-mid-autumn-gathering-01/w960.webp",
+                                            "mimeType":  "image/webp",
+                                            "byteSize":  41640,
+                                            "width":  960,
+                                            "height":  513,
+                                            "sha256":  "1d92fa61670f7aaf5b4f1667771a3bbc2d667142f79670598bf126aeefd508f4"
+                                        },
+                                        {
+                                            "name":  "w1440",
+                                            "storageKey":  "built-in-stories/2026-mid-autumn-night/media-built-in-mid-autumn-gathering-01/w1440.webp",
+                                            "mimeType":  "image/webp",
+                                            "byteSize":  64130,
+                                            "width":  1440,
+                                            "height":  770,
+                                            "sha256":  "2702903f7ec16e9ffffc64c781b0c120cc5e34e97b5da251d0fc13f183814571"
+                                        },
+                                        {
+                                            "name":  "w1920",
+                                            "storageKey":  "built-in-stories/2026-mid-autumn-night/media-built-in-mid-autumn-gathering-01/w1920.webp",
+                                            "mimeType":  "image/webp",
+                                            "byteSize":  89370,
+                                            "width":  1920,
+                                            "height":  1027,
+                                            "sha256":  "3d55d7d6f87151929ac74238beb4c4e91d9737281edad07d88da953bc582e123"
+                                        }
+                                    ]
+                   },
+                   {
+                       "id":  "media-built-in-mid-autumn-gathering-02",
+                       "altText":  "傍晚的广场上，五名玩家角色站在灯笼前合影，门楼横跨画面背景。",
+                       "focalPoint":  {
+                                          "x":  0.5,
+                                          "y":  0.68
+                                      },
+                       "variants":  [
+                                        {
+                                            "name":  "placeholder",
+                                            "storageKey":  "built-in-stories/2026-mid-autumn-night/media-built-in-mid-autumn-gathering-02/placeholder.webp",
+                                            "mimeType":  "image/webp",
+                                            "byteSize":  358,
+                                            "width":  48,
+                                            "height":  26,
+                                            "sha256":  "9d95e7c1761fab78df940dca8ad32964bb9e340e24b27ccddcc0c1ae8ebfa202"
+                                        },
+                                        {
+                                            "name":  "w480",
+                                            "storageKey":  "built-in-stories/2026-mid-autumn-night/media-built-in-mid-autumn-gathering-02/w480.webp",
+                                            "mimeType":  "image/webp",
+                                            "byteSize":  16576,
+                                            "width":  480,
+                                            "height":  257,
+                                            "sha256":  "317b6ef1dcb9025dc42da8cd88121f2fb2c42fbe92b86bf433a58a9c29165757"
+                                        },
+                                        {
+                                            "name":  "w960",
+                                            "storageKey":  "built-in-stories/2026-mid-autumn-night/media-built-in-mid-autumn-gathering-02/w960.webp",
+                                            "mimeType":  "image/webp",
+                                            "byteSize":  37798,
+                                            "width":  960,
+                                            "height":  513,
+                                            "sha256":  "b3a824ccdc7f4fe463b02c054da9bf24294ab72512f4ba0b1be492e6ff1b9a1a"
+                                        },
+                                        {
+                                            "name":  "w1440",
+                                            "storageKey":  "built-in-stories/2026-mid-autumn-night/media-built-in-mid-autumn-gathering-02/w1440.webp",
+                                            "mimeType":  "image/webp",
+                                            "byteSize":  59394,
+                                            "width":  1440,
+                                            "height":  770,
+                                            "sha256":  "94aa8fb985fcca20d33e063a84683d8b12d988c962eba6540d2d3a42cf9d2a5d"
+                                        },
+                                        {
+                                            "name":  "w1920",
+                                            "storageKey":  "built-in-stories/2026-mid-autumn-night/media-built-in-mid-autumn-gathering-02/w1920.webp",
+                                            "mimeType":  "image/webp",
+                                            "byteSize":  83722,
+                                            "width":  1920,
+                                            "height":  1027,
+                                            "sha256":  "a8fe474763c211a31654a88f0a6b48356050fddf372183ba250bc3c91fdba8cf"
+                                        }
+                                    ]
+                   },
+                   {
+                       "id":  "media-built-in-mid-autumn-gathering-03",
+                       "altText":  "晴朗天空下，多名玩家角色在大型红色门楼前合影。",
+                       "focalPoint":  {
+                                          "x":  0.52,
+                                          "y":  0.67
+                                      },
+                       "variants":  [
+                                        {
+                                            "name":  "placeholder",
+                                            "storageKey":  "built-in-stories/2026-mid-autumn-night/media-built-in-mid-autumn-gathering-03/placeholder.webp",
+                                            "mimeType":  "image/webp",
+                                            "byteSize":  392,
+                                            "width":  48,
+                                            "height":  26,
+                                            "sha256":  "aa12d9264f234dcf76a3b8c19d0b6d0cadd4d6d334f07da62590b98d9e042afb"
+                                        },
+                                        {
+                                            "name":  "w480",
+                                            "storageKey":  "built-in-stories/2026-mid-autumn-night/media-built-in-mid-autumn-gathering-03/w480.webp",
+                                            "mimeType":  "image/webp",
+                                            "byteSize":  20378,
+                                            "width":  480,
+                                            "height":  257,
+                                            "sha256":  "204545172db930ffba7602c8220b933005704c5942d8f1f27669f63d66b555a4"
+                                        },
+                                        {
+                                            "name":  "w960",
+                                            "storageKey":  "built-in-stories/2026-mid-autumn-night/media-built-in-mid-autumn-gathering-03/w960.webp",
+                                            "mimeType":  "image/webp",
+                                            "byteSize":  51188,
+                                            "width":  960,
+                                            "height":  513,
+                                            "sha256":  "e7ddac8dd5dad68cb80dd2eec1266c043a463f623eb84a2d1467191fe4a45f30"
+                                        },
+                                        {
+                                            "name":  "w1440",
+                                            "storageKey":  "built-in-stories/2026-mid-autumn-night/media-built-in-mid-autumn-gathering-03/w1440.webp",
+                                            "mimeType":  "image/webp",
+                                            "byteSize":  81848,
+                                            "width":  1440,
+                                            "height":  770,
+                                            "sha256":  "de0226d215a1cec050e97dd2ad4a726680f626eaaa14caf345c892616b0523ef"
+                                        },
+                                        {
+                                            "name":  "w1920",
+                                            "storageKey":  "built-in-stories/2026-mid-autumn-night/media-built-in-mid-autumn-gathering-03/w1920.webp",
+                                            "mimeType":  "image/webp",
+                                            "byteSize":  113220,
+                                            "width":  1920,
+                                            "height":  1027,
+                                            "sha256":  "979fbc7fb39fb610a4090abce86a141eb46a89c97adadcb7573b9d5b50205c46"
+                                        }
+                                    ]
+                   },
+                   {
+                       "id":  "media-built-in-mid-autumn-market",
+                       "altText":  "三名玩家角色在白天的节日摊位前互动，背景有食物展示和花木。",
+                       "focalPoint":  {
+                                          "x":  0.49,
+                                          "y":  0.63
+                                      },
+                       "variants":  [
+                                        {
+                                            "name":  "placeholder",
+                                            "storageKey":  "built-in-stories/2026-mid-autumn-night/media-built-in-mid-autumn-market/placeholder.webp",
+                                            "mimeType":  "image/webp",
+                                            "byteSize":  526,
+                                            "width":  48,
+                                            "height":  26,
+                                            "sha256":  "dd08368521d4535bc2246ef53395aabc53c31c358f668ede973406f52e91e77f"
+                                        },
+                                        {
+                                            "name":  "w480",
+                                            "storageKey":  "built-in-stories/2026-mid-autumn-night/media-built-in-mid-autumn-market/w480.webp",
+                                            "mimeType":  "image/webp",
+                                            "byteSize":  31356,
+                                            "width":  480,
+                                            "height":  257,
+                                            "sha256":  "61adb3e0c5e45895e0010823f4b5a6452214a1add89c8225d5c3903a49233780"
+                                        },
+                                        {
+                                            "name":  "w960",
+                                            "storageKey":  "built-in-stories/2026-mid-autumn-night/media-built-in-mid-autumn-market/w960.webp",
+                                            "mimeType":  "image/webp",
+                                            "byteSize":  75876,
+                                            "width":  960,
+                                            "height":  513,
+                                            "sha256":  "d990e963b1cfa8e7759f07d0981a87b9e96ced2af194205ed0ab4aaa39922276"
+                                        },
+                                        {
+                                            "name":  "w1440",
+                                            "storageKey":  "built-in-stories/2026-mid-autumn-night/media-built-in-mid-autumn-market/w1440.webp",
+                                            "mimeType":  "image/webp",
+                                            "byteSize":  121342,
+                                            "width":  1440,
+                                            "height":  770,
+                                            "sha256":  "9368a7d758ca46d3c3849744170127dff93788cc7f1759775790948e3a3c22ca"
+                                        },
+                                        {
+                                            "name":  "w1920",
+                                            "storageKey":  "built-in-stories/2026-mid-autumn-night/media-built-in-mid-autumn-market/w1920.webp",
+                                            "mimeType":  "image/webp",
+                                            "byteSize":  171758,
+                                            "width":  1920,
+                                            "height":  1027,
+                                            "sha256":  "c9486d6637dfe1e5316c0b5f15657e827d789d0a4ea251428cd0ccac49250988"
+                                        }
+                                    ]
+                   },
+                   {
+                       "id":  "media-built-in-mid-autumn-after-event",
+                       "altText":  "夜间石板街道两侧挂着红色灯笼，木构建筑和树木延伸到远处。",
+                       "focalPoint":  {
+                                          "x":  0.5,
+                                          "y":  0.5
+                                      },
+                       "variants":  [
+                                        {
+                                            "name":  "placeholder",
+                                            "storageKey":  "built-in-stories/2026-mid-autumn-night/media-built-in-mid-autumn-after-event/placeholder.webp",
+                                            "mimeType":  "image/webp",
+                                            "byteSize":  248,
+                                            "width":  48,
+                                            "height":  26,
+                                            "sha256":  "c2d3a956808fac037bbf9436055e5c09f84b37ba669a260830210b8482859ec7"
+                                        },
+                                        {
+                                            "name":  "w480",
+                                            "storageKey":  "built-in-stories/2026-mid-autumn-night/media-built-in-mid-autumn-after-event/w480.webp",
+                                            "mimeType":  "image/webp",
+                                            "byteSize":  14902,
+                                            "width":  480,
+                                            "height":  257,
+                                            "sha256":  "d05cecbd9223aae91278f73dddda70d2ec6c2657b94e34f17801524da9ddc7c7"
+                                        },
+                                        {
+                                            "name":  "w960",
+                                            "storageKey":  "built-in-stories/2026-mid-autumn-night/media-built-in-mid-autumn-after-event/w960.webp",
+                                            "mimeType":  "image/webp",
+                                            "byteSize":  36308,
+                                            "width":  960,
+                                            "height":  513,
+                                            "sha256":  "10d848956365e78cc7fe03428a49082c549c9a519428e0fc21408306ba939375"
+                                        },
+                                        {
+                                            "name":  "w1440",
+                                            "storageKey":  "built-in-stories/2026-mid-autumn-night/media-built-in-mid-autumn-after-event/w1440.webp",
+                                            "mimeType":  "image/webp",
+                                            "byteSize":  59840,
+                                            "width":  1440,
+                                            "height":  770,
+                                            "sha256":  "cc0b35d5317d625ba5e31278cf1005f5b8fbe363ae9db09e870b57ca303bc35d"
+                                        },
+                                        {
+                                            "name":  "w1920",
+                                            "storageKey":  "built-in-stories/2026-mid-autumn-night/media-built-in-mid-autumn-after-event/w1920.webp",
+                                            "mimeType":  "image/webp",
+                                            "byteSize":  84626,
+                                            "width":  1920,
+                                            "height":  1027,
+                                            "sha256":  "9a03c343ee5b5384813b0f24fd4392065ec4e5fac53f7e750e6cc73a72054b53"
+                                        }
+                                    ]
+                   }
+               ]
+}

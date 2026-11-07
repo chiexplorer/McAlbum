@@ -31,6 +31,7 @@ McAlbum 是一个用于记录和展示 Minecraft Fabric 纯净生存服务器的
 - 项目时区固定为中国北京，数据和程序使用 `Asia/Shanghai`；
 - 页面与组件通过 repository/service 访问内容，不直接散落导入 JSON 文件；
 - 照片、玩家和作品集通过 ID 建立关系；项目只记录一个持续运行的服务器世界，不建模周目、地点或事件实体。
+- 首页固定作品集使用 `content/built-in-stories/` 中的内置包，其 WebP 变体位于 `apps/web/public/built-in-stories/` 并随 Git 发布；内置作品集为只读内容，不由数据库、上传流程或媒体清理命令管理。
 
 ### 后端与数据库
 
@@ -89,6 +90,7 @@ apps/
     ├── migrations/         # Alembic 迁移
     └── tests/
 content/                    # 第一阶段 JSON 内容源
+├── built-in-stories/       # 随代码发布的只读内置作品集
 contracts/
 ├── json-schema/            # JSON 内容契约
 └── openapi/                # FastAPI OpenAPI 快照

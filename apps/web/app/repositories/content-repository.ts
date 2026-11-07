@@ -1,4 +1,5 @@
 import type {
+  DisplayMediaAsset,
   Photo,
   Player,
   PublicMediaAsset,
@@ -13,7 +14,7 @@ export interface ResolvedPhoto {
 
 export interface ResolvedStory {
   story: Story
-  coverAsset: PublicMediaAsset
+  coverAsset: DisplayMediaAsset
 }
 
 export interface PhotoFeedCursor {
@@ -44,7 +45,7 @@ export interface PhotoFeedQuery {
 export interface HomeContent {
   site: SiteContent
   featuredStory: Story
-  coverAsset: PublicMediaAsset
+  coverAsset: DisplayMediaAsset
   recentPhotos: ResolvedPhoto[]
 }
 
@@ -60,7 +61,7 @@ export interface PhotoDetailContent extends ResolvedPhoto {
 
 export interface StoryDetailContent {
   story: Story
-  assetsById: Map<string, PublicMediaAsset>
+  assetsById: Map<string, DisplayMediaAsset>
 }
 
 export interface StoryIndexContent {

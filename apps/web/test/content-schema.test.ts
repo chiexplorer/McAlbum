@@ -2,6 +2,7 @@ import { readFileSync, readdirSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import {
+  builtInStoryPackageSchema,
   photoSchema,
   playerSchema,
   publicMediaAssetSchema,
@@ -31,6 +32,7 @@ describe('content schemas', () => {
     readCollection('media-assets').forEach(document => internalMediaAssetSchema.parse(document))
     readCollection('photos').forEach(document => photoSchema.parse(document))
     readCollection('stories').forEach(document => storySchema.parse(document))
+    readCollection('built-in-stories').forEach(document => builtInStoryPackageSchema.parse(document))
     readCollection('players').forEach(document => playerSchema.parse(document))
   })
 
@@ -70,7 +72,8 @@ describe('content schemas', () => {
   })
 
   it('rejects story sections without the fields required by their type', () => {
-    const story = readCollection('stories')[0] as Record<string, unknown>
+    const storyPackage = readCollection('built-in-stories')[0] as { story: Record<string, unknown> }
+    const story = storyPackage.story
     expect(() =>
       storySchema.parse({
         ...story,

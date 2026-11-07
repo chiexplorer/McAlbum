@@ -1,6 +1,17 @@
 import type { ResolvedStory, StoryDetailContent } from '~/repositories/content-repository'
 import { ApiContentRepository } from '~/repositories/api-content'
-import { getStoryContent, getStoryIndexContent } from '~/repositories/json-content'
+import {
+  getBuiltInStoryContent,
+  getBuiltInStoryIndexContent,
+  getStoryContent,
+  getStoryIndexContent,
+} from '~/repositories/json-content'
+
+function withBuiltInStories(dynamicStories: ResolvedStory[]): ResolvedStory[] {
+  const builtIn = getBuiltInStoryIndexContent().stories
+  const builtInIds = new Set(builtIn.map(item => item.story.id))
+  return [...builtIn, ...dynamicStories.filter(item => !builtInIds.has(item.story.id))]
+}
 
 /** 先用构建快照渲染，再从公开 API 同步最新发布作品集。 */
 export function usePublicStories() {
@@ -13,7 +24,7 @@ export function usePublicStories() {
   async function refresh() {
     refreshing.value = true
     try {
-      stories.value = await repository.getStories()
+      stories.value = withBuiltInStories(await repository.getStories())
       usingSnapshot.value = false
     }
     catch {
@@ -37,6 +48,13 @@ export function usePublicStory(id: string) {
   const repository = new ApiContentRepository(String(config.public.apiBase).replace(/\/$/, ''))
 
   async function refresh() {
+    const builtInContent = getBuiltInStoryContent(id)
+    if (builtInContent) {
+      content.value = builtInContent
+      loading.value = false
+      unavailable.value = false
+      return
+    }
     loading.value = content.value === undefined
     unavailable.value = false
     try {

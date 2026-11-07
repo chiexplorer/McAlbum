@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { PublicMediaAsset } from '~/schemas/content'
+import type { DisplayMediaAsset } from '~/schemas/content'
 
 const props = withDefaults(defineProps<{
-  asset: PublicMediaAsset
+  asset: DisplayMediaAsset
   alt?: string
   eager?: boolean
   sizes?: string

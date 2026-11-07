@@ -17,8 +17,10 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 CONTENT_ROOT = PROJECT_ROOT / "content"
 CONTRACT_ROOT = PROJECT_ROOT / "contracts" / "json-schema"
 STORAGE_ROOT = PROJECT_ROOT / "storage"
+WEB_PUBLIC_ROOT = PROJECT_ROOT / "apps" / "web" / "public"
 ID_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 COLLECTIONS = (
+    "built-in-stories",
     "media-assets",
     "photos",
     "stories",
@@ -26,6 +28,7 @@ COLLECTIONS = (
 )
 
 SCHEMA_FILES: dict[str, str] = {
+    "built-in-stories": "built-in-story.schema.json",
     "site": "site.schema.json",
     "media-assets": "media-asset.schema.json",
     "photos": "photo.schema.json",
@@ -162,6 +165,21 @@ def collect_entities(
             errors.append(f"{relative_path}: {collection} 中存在重复 id：{entity_id}")
         entity_ids[collection].add(entity_id)
 
+        if collection == "built-in-stories":
+            story = data.get("story")
+            if isinstance(story, dict) and isinstance(story.get("id"), str):
+                story_id = story["id"]
+                if story_id in entity_ids["stories"]:
+                    errors.append(f"{relative_path}: stories 中存在重复 id：{story_id}")
+                entity_ids["stories"].add(story_id)
+            for asset in data.get("assets", []):
+                if not isinstance(asset, dict) or not isinstance(asset.get("id"), str):
+                    continue
+                asset_id = asset["id"]
+                if asset_id in entity_ids["media-assets"]:
+                    errors.append(f"{relative_path}: media-assets 中存在重复 id：{asset_id}")
+                entity_ids["media-assets"].add(asset_id)
+
     return entity_ids, documents
 
 
@@ -224,6 +242,38 @@ def validate_media_files(
     """检查媒体资产声明的原图和变体是否存在且与清单一致。"""
 
     for document_path, data in documents:
+        if document_path.parent.name == "built-in-stories":
+            for asset in data.get("assets", []):
+                if not isinstance(asset, dict):
+                    continue
+                for variant in asset.get("variants", []):
+                    if not isinstance(variant, dict):
+                        continue
+                    storage_key = variant.get("storageKey")
+                    if not isinstance(storage_key, str):
+                        continue
+                    candidate = (WEB_PUBLIC_ROOT / storage_key).resolve()
+                    try:
+                        candidate.relative_to(WEB_PUBLIC_ROOT.resolve())
+                    except ValueError:
+                        errors.append(
+                            f"{document_path.relative_to(PROJECT_ROOT)}: 内置媒体路径越出 public：{storage_key}"
+                        )
+                        continue
+                    if not candidate.is_file():
+                        errors.append(
+                            f"{document_path.relative_to(PROJECT_ROOT)}: 内置媒体不存在：{storage_key}"
+                        )
+                        continue
+                    if candidate.stat().st_size != variant.get("byteSize"):
+                        errors.append(
+                            f"{document_path.relative_to(PROJECT_ROOT)}: 内置媒体大小与清单不一致：{storage_key}"
+                        )
+                    if sha256_file(candidate) != variant.get("sha256"):
+                        errors.append(
+                            f"{document_path.relative_to(PROJECT_ROOT)}: 内置媒体 SHA-256 与清单不一致：{storage_key}"
+                        )
+            continue
         if document_path.parent.name != "media-assets":
             continue
 

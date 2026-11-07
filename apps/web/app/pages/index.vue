@@ -23,7 +23,8 @@ function openLightbox(asset: PublicMediaAsset, title: string): void {
   selectedTitle.value = title
 }
 
-const ogVariant = coverAsset.variants.find(variant => variant.name === 'w1920') ?? coverAsset.variants.at(-1)
+const ogVariant = coverAsset.variants.find(variant => variant.name === 'w1920')
+  ?? coverAsset.variants.at(-1)
 usePageSeo({
   title: `${site.title} · 世界档案馆`,
   description: site.description,
@@ -127,12 +128,12 @@ usePageSeo({
       <div class="page-container story-band__inner">
         <ArchiveStamp date="2026-09-25" place="太极广场西侧" />
         <div>
-          <p class="section-kicker">历史专题草稿</p>
+          <p class="section-kicker">历史专题</p>
           <h2 id="story-title">{{ featuredStory.title }}</h2>
           <p>{{ featuredStory.summary }}</p>
         </div>
         <div class="story-band__actions">
-          <span class="story-band__status">待校订</span>
+          <span class="story-band__status">已入藏</span>
           <NuxtLink :to="`/stories/${featuredStory.id}`">阅读专题</NuxtLink>
         </div>
       </div>

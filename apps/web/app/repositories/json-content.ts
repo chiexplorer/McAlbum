@@ -1,5 +1,6 @@
 import publicMediaSources from '~/generated/media-assets.json'
 import publicContentSources from '~/generated/content.json'
+import builtInStorySource from '@mcalbum/content/built-in-stories/2026-mid-autumn-night.json'
 import type {
   AlbumContent,
   ContentRepository,
@@ -17,15 +18,26 @@ import {
   siteContentSchema,
   storySchema,
   publicMediaAssetSchema,
+  builtInStoryPackageSchema,
 } from '~/schemas/content'
 
 class JsonContentRepository implements ContentRepository {
   private readonly site = siteContentSchema.parse(publicContentSources.site)
   private readonly assets = publicMediaAssetSchema.array().parse(publicMediaSources)
+  private readonly builtInStory = builtInStoryPackageSchema.parse(builtInStorySource)
   private readonly photos = publicContentSources.photos.map(source => photoSchema.parse(source))
-  private readonly stories = publicContentSources.stories.map(source => storySchema.parse(source))
+  private readonly stories = [
+    ...publicContentSources.stories
+      .map(source => storySchema.parse(source))
+      .filter(story => story.id !== this.builtInStory.story.id),
+    this.builtInStory.story,
+  ]
   private readonly players = publicContentSources.players.map(source => playerSchema.parse(source))
   private readonly assetsById = new Map(this.assets.map(asset => [asset.id, asset]))
+  private readonly displayAssetsById = new Map([
+    ...this.assets.map(asset => [asset.id, asset] as const),
+    ...this.builtInStory.assets.map(asset => [asset.id, asset] as const),
+  ])
   private readonly photosById = new Map(this.photos.map(photo => [photo.id, photo]))
 
   private resolvePhoto(photoId: string): ResolvedPhoto {
@@ -37,15 +49,15 @@ class JsonContentRepository implements ContentRepository {
   }
 
   getHomeContent(): HomeContent {
-    const featuredStory = this.stories.find(story => story.id === '2026-mid-autumn-night')
-    if (!featuredStory) throw new Error('首页专题不存在')
-    const coverAsset = this.assetsById.get(featuredStory.coverAssetId)
-    if (!coverAsset) throw new Error(`专题封面媒体 ${featuredStory.coverAssetId} 不存在`)
-
     const recentPhotos = [...this.photos]
       .sort((left, right) => right.capturedAt.localeCompare(left.capturedAt))
       .slice(0, 6)
       .map(photo => this.resolvePhoto(photo.id))
+    const featuredStory = this.builtInStory.story
+    const coverAsset = this.displayAssetsById.get(featuredStory.coverAssetId)
+    if (!coverAsset) {
+      throw new Error(`内置作品集封面媒体 ${featuredStory.coverAssetId} 不存在`)
+    }
 
     return { site: this.site, featuredStory, coverAsset, recentPhotos }
   }
@@ -75,7 +87,7 @@ class JsonContentRepository implements ContentRepository {
     if (!story) return undefined
     return {
       story,
-      assetsById: this.assetsById,
+      assetsById: this.displayAssetsById,
     }
   }
 
@@ -83,7 +95,7 @@ class JsonContentRepository implements ContentRepository {
     return {
       stories: [...this.stories]
         .map((story) => {
-          const coverAsset = this.assetsById.get(story.coverAssetId)
+          const coverAsset = this.displayAssetsById.get(story.coverAssetId)
           if (!coverAsset) throw new Error(`专题封面媒体 ${story.coverAssetId} 不存在`)
           return { story, coverAsset }
         })
@@ -114,5 +126,15 @@ export const getAlbumContent = (): AlbumContent => repository.getAlbumContent()
 export const getPhotoContent = (id: string): PhotoDetailContent | undefined => repository.getPhotoContent(id)
 export const getStoryContent = (id: string): StoryDetailContent | undefined => repository.getStoryContent(id)
 export const getStoryIndexContent = (): StoryIndexContent => repository.getStoryIndexContent()
+export const getBuiltInStoryContent = (id: string): StoryDetailContent | undefined => (
+  id === builtInStorySource.id ? repository.getStoryContent(id) : undefined
+)
+export const getBuiltInStoryIndexContent = (): StoryIndexContent => {
+  const content = repository.getStoryContent(builtInStorySource.id)
+  if (!content) throw new Error(`内置作品集 ${builtInStorySource.id} 不存在`)
+  const coverAsset = content.assetsById.get(content.story.coverAssetId)
+  if (!coverAsset) throw new Error(`内置作品集封面媒体 ${content.story.coverAssetId} 不存在`)
+  return { stories: [{ story: content.story, coverAsset }] }
+}
 export const getPlayerIndexContent = (): PlayerIndexContent => repository.getPlayerIndexContent()
 export const getPlayerContent = (id: string): PlayerDetailContent | undefined => repository.getPlayerContent(id)

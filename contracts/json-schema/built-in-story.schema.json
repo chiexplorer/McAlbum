@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mcalbum.local/schema/built-in-story.schema.json",
+  "title": "Built-in story package",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "story", "assets"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "$ref": "#/$defs/id" },
+    "story": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "summary", "coverAssetId", "sections", "status", "isMock"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "title": { "type": "string", "minLength": 1 },
+        "summary": { "type": "string", "minLength": 1 },
+        "coverAssetId": { "$ref": "#/$defs/mediaId" },
+        "playerIds": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/id" },
+          "uniqueItems": true
+        },
+        "sections": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "oneOf": [
+              { "$ref": "#/$defs/textSection" },
+              { "$ref": "#/$defs/wideImageSection" },
+              { "$ref": "#/$defs/imageGridSection" },
+              { "$ref": "#/$defs/textWithImageSection" },
+              { "$ref": "#/$defs/playerQuoteSection" }
+            ]
+          }
+        },
+        "status": { "const": "published" },
+        "isMock": { "const": false }
+      }
+    },
+    "assets": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/asset" }
+    }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+    "mediaId": { "type": "string", "pattern": "^media-[a-z0-9]+(?:-[a-z0-9]+)*$" },
+    "textSection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "body"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "type": { "const": "text" },
+        "body": { "type": "string", "minLength": 1 }
+      }
+    },
+    "wideImageSection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "assetId", "caption"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "type": { "const": "wide-image" },
+        "assetId": { "$ref": "#/$defs/mediaId" },
+        "caption": { "type": "string", "minLength": 1 }
+      }
+    },
+    "imageGridSection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "assetIds"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "type": { "const": "image-grid" },
+        "assetIds": {
+          "type": "array",
+          "minItems": 2,
+          "items": { "$ref": "#/$defs/mediaId" },
+          "uniqueItems": true
+        },
+        "caption": { "type": "string" }
+      }
+    },
+    "textWithImageSection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "body", "assetId", "imagePosition"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "type": { "const": "text-with-image" },
+        "body": { "type": "string", "minLength": 1 },
+        "assetId": { "$ref": "#/$defs/mediaId" },
+        "imagePosition": { "enum": ["left", "right"] }
+      }
+    },
+    "playerQuoteSection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "playerId", "quote"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "type": { "const": "player-quote" },
+        "playerId": { "$ref": "#/$defs/id" },
+        "quote": { "type": "string", "minLength": 1, "maxLength": 1000 }
+      }
+    },
+    "variant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "storageKey", "mimeType", "byteSize", "width", "height", "sha256"],
+      "properties": {
+        "name": { "enum": ["placeholder", "w480", "w960", "w1440", "w1920"] },
+        "storageKey": {
+          "type": "string",
+          "pattern": "^built-in-stories/[a-z0-9]+(?:-[a-z0-9]+)*/media-[a-z0-9]+(?:-[a-z0-9]+)*/(placeholder|w480|w960|w1440|w1920)\\.webp$"
+        },
+        "mimeType": { "const": "image/webp" },
+        "byteSize": { "type": "integer", "minimum": 1 },
+        "width": { "type": "integer", "minimum": 1 },
+        "height": { "type": "integer", "minimum": 1 },
+        "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      }
+    },
+    "asset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "altText", "focalPoint", "variants"],
+      "properties": {
+        "id": { "$ref": "#/$defs/mediaId" },
+        "altText": { "type": "string", "minLength": 1, "maxLength": 240 },
+        "focalPoint": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["x", "y"],
+          "properties": {
+            "x": { "type": "number", "minimum": 0, "maximum": 1 },
+            "y": { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        },
+        "variants": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/variant" }
+        }
+      }
+    }
+  }
+}
