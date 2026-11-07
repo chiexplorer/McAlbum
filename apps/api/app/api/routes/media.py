@@ -19,8 +19,10 @@ UploadLimited = Annotated[None, Depends(upload_limit)]
 @router.get("", response_model=list[MediaAssetResponse])
 def list_media(principal: PrincipalDep, db: Db) -> list[MediaAssetResponse]:
     service = MediaService(db)
-    owner = None if principal.is_admin else principal.user.id
-    return [service.response(item) for item in ContentRepository(db).list_media(owner)]
+    return [
+        service.response(item)
+        for item in ContentRepository(db).list_media(principal.user.id)
+    ]
 
 
 @router.post("", response_model=MediaAssetResponse, status_code=status.HTTP_201_CREATED)

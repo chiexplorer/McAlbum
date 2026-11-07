@@ -21,6 +21,7 @@ interface StoryItem {
   player_ids: string[]
   status: string
   rejection_reason: string | null
+  author_user_id: string
 }
 
 interface PhotoItem { id: string, title: string, asset_id: string, captured_at: string }
@@ -118,15 +119,21 @@ async function save() {
 }
 
 async function transition(story: StoryItem, target_status: string) {
-  const reason = target_status === 'rejected' ? window.prompt('填写退回原因') : null
-  if (target_status === 'rejected' && !reason) return
   try {
     const updated = await api.request<StoryItem>(`/manage/stories/${story.id}/transition`, {
-      method: 'POST', body: { target_status, reason },
+      method: 'POST', body: { target_status, reason: null },
     })
     stories.value[stories.value.findIndex(value => value.id === updated.id)] = updated
   }
   catch (caught) { error.value = api.errorMessage(caught) }
+}
+
+async function remove(story: StoryItem) {
+  if (!window.confirm('确认删除这个作品集？')) return
+  try {
+    const updated = await api.request<StoryItem>(`/manage/stories/${story.id}`, { method: 'DELETE' })
+    stories.value[stories.value.findIndex(item => item.id === updated.id)] = updated
+  } catch (caught) { error.value = api.errorMessage(caught) }
 }
 </script>
 
@@ -137,7 +144,7 @@ async function transition(story: StoryItem, target_status: string) {
       <h1>让图片形成一段可阅读的历史</h1>
       <p>作品集和内容区块的档案 ID 均由系统维护；选择图片时直接按最新照片标题辨认。</p>
     </header>
-    <form class="manage-form manage-form--columns" @submit.prevent="save">
+    <form v-if="api.can('story.create') || editingId" class="manage-form manage-form--columns" @submit.prevent="save">
       <label>标题<input v-model.trim="form.title" required></label>
       <label>封面照片<select v-model="form.cover_asset_id" required><option value="" disabled>选择最新照片</option><option v-for="photo in photos" :key="photo.id" :value="photo.asset_id">{{ photo.title }} · {{ photo.captured_at.slice(0, 10) }}</option></select></label>
       <label class="manage-span">摘要<textarea v-model.trim="form.summary" rows="3" required /></label>
@@ -161,7 +168,7 @@ async function transition(story: StoryItem, target_status: string) {
     </form>
     <section class="manage-records">
       <h2>作品集记录</h2>
-      <article v-for="story in stories" :key="story.id"><div><span class="manage-status" :data-status="story.status">{{ story.status }}</span><h3>{{ story.title }}</h3><p>{{ story.summary }}</p></div><div class="manage-actions"><button type="button" @click="edit(story)">编辑</button><button v-if="['draft', 'rejected'].includes(story.status)" type="button" @click="transition(story, api.can('story.publish') ? 'published' : 'pending')">{{ api.can('story.publish') ? '发布' : '提交审核' }}</button><button v-if="story.status === 'pending' && api.session.value?.user.role === 'admin'" type="button" @click="transition(story, 'published')">通过</button><button v-if="story.status === 'pending' && api.session.value?.user.role === 'admin'" type="button" @click="transition(story, 'rejected')">退回</button></div></article>
+      <article v-for="story in stories" :key="story.id"><div><span class="manage-status" :data-status="story.status">{{ story.status }}</span><h3>{{ story.title }}</h3><p>{{ story.summary }}</p></div><div class="manage-actions"><button v-if="story.author_user_id === api.session.value?.user.id && api.can('story.update.own')" type="button" @click="edit(story)">编辑</button><button v-if="story.author_user_id === api.session.value?.user.id && ['draft', 'rejected', 'archived'].includes(story.status) && api.can('story.publish.own')" type="button" @click="transition(story, 'published')">发布</button><button v-if="story.author_user_id === api.session.value?.user.id && story.status === 'published' && api.can('story.archive.own')" type="button" @click="transition(story, 'archived')">归档</button><button v-if="story.status !== 'deleted' && api.can('story.delete.any')" type="button" @click="remove(story)">删除</button></div></article>
     </section>
   </ManageShell>
 </template>

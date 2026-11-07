@@ -38,20 +38,50 @@ class User(TimestampMixin, Base):
     username: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
     display_name: Mapped[str] = mapped_column(String(80), nullable=False)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
-    role: Mapped[str] = mapped_column(String(16), nullable=False, default="user")
-    enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    role_id: Mapped[str] = mapped_column(ForeignKey("roles.id"), nullable=False)
+    status: Mapped[str] = mapped_column(String(20), nullable=False, default="pending")
+    minecraft_name: Mapped[str | None] = mapped_column(String(16), unique=True)
+    application_reason: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    review_reason: Mapped[str | None] = mapped_column(String(500))
+    reviewed_at: Mapped[datetime | None] = mapped_column(DateTime)
+    reviewed_by: Mapped[str | None] = mapped_column(ForeignKey("users.id"))
+    banned_at: Mapped[datetime | None] = mapped_column(DateTime)
+    banned_by: Mapped[str | None] = mapped_column(ForeignKey("users.id"))
+    ban_reason: Mapped[str | None] = mapped_column(String(500))
     player_id: Mapped[str | None] = mapped_column(
         ForeignKey("players.id", ondelete="SET NULL"), unique=True
     )
 
 
-class UserPermission(Base):
-    __tablename__ = "user_permissions"
-    __table_args__ = (UniqueConstraint("user_id", "permission"),)
+class Role(Base):
+    __tablename__ = "roles"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
-    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
-    permission: Mapped[str] = mapped_column(String(64), nullable=False)
+    id: Mapped[str] = mapped_column(String(40), primary_key=True)
+    code: Mapped[str] = mapped_column(String(32), unique=True, nullable=False)
+    name_zh: Mapped[str] = mapped_column(String(40), nullable=False)
+    description: Mapped[str] = mapped_column(String(240), nullable=False)
+    is_system: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+
+
+class Permission(Base):
+    __tablename__ = "permissions"
+
+    code: Mapped[str] = mapped_column(String(64), primary_key=True)
+    name_zh: Mapped[str] = mapped_column(String(80), nullable=False)
+    group_name: Mapped[str] = mapped_column(String(40), nullable=False)
+    description: Mapped[str] = mapped_column(String(240), nullable=False)
+    sort_order: Mapped[int] = mapped_column(BigInteger, nullable=False)
+
+
+class RolePermission(Base):
+    __tablename__ = "role_permissions"
+
+    role_id: Mapped[str] = mapped_column(
+        ForeignKey("roles.id", ondelete="CASCADE"), primary_key=True
+    )
+    permission_code: Mapped[str] = mapped_column(
+        ForeignKey("permissions.code", ondelete="CASCADE"), primary_key=True
+    )
 
 
 class UserSession(Base):
@@ -66,19 +96,6 @@ class UserSession(Base):
     revoked_at: Mapped[datetime | None] = mapped_column(DateTime)
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     last_seen_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
-
-
-class Invitation(Base):
-    __tablename__ = "invitations"
-
-    id: Mapped[str] = mapped_column(String(40), primary_key=True)
-    code_hash: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
-    permissions: Mapped[list[str]] = mapped_column(JSON, nullable=False)
-    expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
-    created_by: Mapped[str] = mapped_column(ForeignKey("users.id"))
-    used_by: Mapped[str | None] = mapped_column(ForeignKey("users.id"))
-    used_at: Mapped[datetime | None] = mapped_column(DateTime)
-    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
 
 class Player(TimestampMixin, Base):
@@ -184,7 +201,9 @@ class Comment(TimestampMixin, Base):
     author_user_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
     body: Mapped[str] = mapped_column(Text, nullable=False)
     status: Mapped[str] = mapped_column(String(20), nullable=False, default="published")
-    hidden_reason: Mapped[str | None] = mapped_column(String(500))
+    deletion_reason: Mapped[str | None] = mapped_column(String(500))
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime)
+    deleted_by: Mapped[str | None] = mapped_column(ForeignKey("users.id"))
 
 
 class AuditLog(Base):
@@ -219,6 +238,8 @@ class PhotoStoryLink(Base):
 
 class PhotoTagLink(Base):
     __tablename__ = "photo_tags"
+    __table_args__ = (Index("ix_photo_tags_tag_photo", "tag_id", "photo_id"),)
+
     photo_id: Mapped[str] = mapped_column(
         ForeignKey("photos.id", ondelete="CASCADE"), primary_key=True
     )

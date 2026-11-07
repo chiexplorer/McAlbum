@@ -11,19 +11,25 @@ _events: dict[str, deque[float]] = defaultdict(deque)
 _lock = Lock()
 
 
+def check_limit(scope: str, key_value: str, attempts: int, window_seconds: int) -> None:
+    """按指定键执行限流，供同时按 IP 与账号标识限制的接口复用。"""
+
+    key = f"{scope}:{key_value}"
+    now = monotonic()
+    with _lock:
+        bucket = _events[key]
+        while bucket and bucket[0] <= now - window_seconds:
+            bucket.popleft()
+        if len(bucket) >= attempts:
+            raise HTTPException(status.HTTP_429_TOO_MANY_REQUESTS, "操作过于频繁，请稍后再试")
+        bucket.append(now)
+
+
 def limit(scope: str, attempts: int, window_seconds: int) -> Callable[[Request], None]:
     """创建按客户端地址和操作范围计数的 FastAPI 依赖。"""
 
     def check(request: Request) -> None:
         address = request.client.host if request.client else "unknown"
-        key = f"{scope}:{address}"
-        now = monotonic()
-        with _lock:
-            bucket = _events[key]
-            while bucket and bucket[0] <= now - window_seconds:
-                bucket.popleft()
-            if len(bucket) >= attempts:
-                raise HTTPException(status.HTTP_429_TOO_MANY_REQUESTS, "操作过于频繁，请稍后再试")
-            bucket.append(now)
+        check_limit(scope, address, attempts, window_seconds)
 
     return check

@@ -9,11 +9,11 @@ onMounted(async () => {
 
 const links = computed(() => [
   { to: '/manage', label: '工作台', show: true },
-  { to: '/manage/photos', label: '上传照片', show: api.can('photo.create') },
+  { to: '/manage/photos', label: '上传照片', show: ['photo.create', 'photo.update.own', 'photo.delete.any'].some(api.can) },
   { to: '/manage/media', label: '媒体库', show: api.can('photo.create') },
-  { to: '/manage/stories', label: '作品集', show: api.can('story.create') },
-  { to: '/manage/profile', label: '玩家档案', show: api.can('profile.self.update') },
-  { to: '/manage/users', label: '账号与审核', show: api.session.value?.user.role === 'admin' },
+  { to: '/manage/stories', label: '作品集', show: ['story.create', 'story.update.own', 'story.delete.any'].some(api.can) },
+  { to: '/manage/profile', label: '玩家档案', show: api.can('profile.manage.own') },
+  { to: '/manage/users', label: '账号与角色', show: ['user.review', 'user.role.assign', 'user.ban', 'role.permissions.manage', 'comment.delete.any'].some(api.can) },
 ].filter(item => item.show))
 </script>
 
@@ -26,7 +26,7 @@ const links = computed(() => [
           <p class="section-kicker">档案编目室</p>
           <p class="manage-identity">
             <strong>{{ api.session.value.user.display_name }}</strong>
-            <span>{{ api.session.value.user.role === 'admin' ? '管理员' : '协作者' }}</span>
+            <span>{{ api.session.value.user.role_name }}</span>
           </p>
         </div>
         <nav aria-label="内容管理">

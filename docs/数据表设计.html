@@ -853,17 +853,17 @@
       <div class="conventions" aria-label="数据库通用约定">
         <article class="convention"><strong>时间与时区</strong><p>业务时间写入 MySQL <code>DATETIME</code> 时统一保存为无时区 UTC；API 或页面读取后再转换为 <code>Asia/Shanghai</code>。仅日期语义使用 <code>DATE</code>。</p></article>
         <article class="convention"><strong>ID 稳定性</strong><p>业务实体使用字符串 ID，发布后不随显示名称变化；自增整数只用于不暴露给用户的权限行和媒体变体行。</p></article>
-        <article class="convention"><strong>JSON 使用边界</strong><p><code>stories.sections</code>、邀请码权限和审计元数据使用 JSON；照片标签已经规范化为 <code>tags</code> 与 <code>photo_tags</code>，实体关系通过普通列、外键和关联表表达。</p></article>
+        <article class="convention"><strong>JSON 使用边界</strong><p><code>stories.sections</code> 和审计元数据使用 JSON；角色权限、照片标签和实体关系均通过普通列、外键和关联表表达。</p></article>
         <article class="convention"><strong>媒体存储边界</strong><p>数据库只保存相对 <code>storage_key</code> 与尺寸、哈希等元数据，图片二进制保留在本地持久化文件系统，不进入 MySQL BLOB。</p></article>
-        <article class="convention"><strong>删除策略</strong><p>会话、细分权限、媒体变体、评论及内容关联随父记录级联清理；其他历史归属默认受外键约束保护，账号与玩家解绑采用 SET NULL。</p></article>
+        <article class="convention"><strong>删除策略</strong><p>照片、作品集和评论采用状态软删除；会话、角色权限、媒体变体及内容关联在父记录真正删除时级联清理。其他历史归属默认受外键约束保护，账号与玩家解绑采用 SET NULL。</p></article>
         <article class="convention"><strong>状态由服务层守护</strong><p>状态列当前是 <code>VARCHAR</code>，合法转换由 FastAPI Service 与 Pydantic 校验，并非 MySQL ENUM 或 CHECK 约束。</p></article>
       </div>
     </section>
   </main>
 
   <footer>
-    <span>结构快照：2026-11-01 · 数据库 <code>mcalbum</code> · MySQL / InnoDB / utf8mb4</span>
-    <span>来源：实际数据库反射 + <code>entities.py</code> + Alembic <code>20261101_0005</code></span>
+    <span>结构快照：2026-11-05 · 数据库 <code>mcalbum</code> · MySQL / InnoDB / utf8mb4</span>
+    <span>来源：实际数据库反射 + <code>entities.py</code> + Alembic <code>20261105_0006</code></span>
   </footer>
 
   <noscript><p style="padding:24px">此文档需要 JavaScript 来绘制关系图并展开表设计。</p></noscript>
@@ -881,7 +881,7 @@
     ];
 
     const publicationFields = () => [
-      f("status", "VARCHAR(20)", false, [], "发布生命周期：draft / pending / published / rejected / archived", "应用层：draft"),
+      f("status", "VARCHAR(20)", false, [], "发布生命周期：draft / published / archived / deleted（兼容既有 pending / rejected）", "应用层：draft"),
       f("author_user_id", "VARCHAR(40)", false, ["FK"], "内容归属账号", "—", { table: "users", column: "id" }),
       f("published_at", "DATETIME", true, [], "实际发布时间（UTC），未发布时为空"),
       f("published_by", "VARCHAR(40)", true, ["FK"], "执行发布操作的管理员或获授权账号", "—", { table: "users", column: "id" }),
@@ -900,30 +900,63 @@
     const tables = [
       {
         name: "users", label: "用户账号", domain: "identity", kind: "business",
-        purpose: "登录身份、固定角色、启停状态与玩家档案绑定的根表。账号和玩家实体刻意分离。",
-        ownership: "账号由管理员与注册流程维护", lifecycle: "enabled 控制登录；删除前受历史内容外键保护", sensitivity: "高：密码哈希与账号身份",
+        purpose: "登录身份、单一角色、审核/封禁状态与玩家档案绑定的根表。账号和玩家实体刻意分离。",
+        ownership: "用户提交申请，管理员审核与管理", lifecycle: "pending / active / rejected / banned；删除前受历史内容外键保护", sensitivity: "高：密码哈希与账号身份",
         fields: [
           f("id", "VARCHAR(40)", false, ["PK"], "系统生成的稳定账号 ID"),
           f("username", "VARCHAR(64)", false, ["UQ"], "登录名；服务层写入前会规范化"),
           f("display_name", "VARCHAR(80)", false, [], "界面显示名称"),
           f("password_hash", "VARCHAR(255)", false, [], "Argon2id 密码哈希，不保存明文", "应用层：Argon2id"),
-          f("role", "VARCHAR(16)", false, [], "固定角色：user / admin；访客不是数据库角色", "应用层：user"),
-          f("enabled", "TINYINT(1)", false, [], "账号是否允许认证", "应用层：true"),
+          f("role_id", "VARCHAR(40)", false, ["FK"], "账号当前的单一固定角色", "—", { table: "roles", column: "id" }),
+          f("status", "VARCHAR(20)", false, [], "账号状态：pending / active / rejected / banned", "应用层：pending"),
+          f("minecraft_name", "VARCHAR(16)", true, ["UQ"], "注册申请填写的 Minecraft 名称"),
+          f("application_reason", "TEXT", false, [], "注册申请说明"),
+          f("review_reason", "VARCHAR(500)", true, [], "审核备注或拒绝原因"),
+          f("reviewed_at", "DATETIME", true, [], "审核时间（UTC）"),
+          f("reviewed_by", "VARCHAR(40)", true, ["FK"], "审核管理员", "—", { table: "users", column: "id" }),
+          f("banned_at", "DATETIME", true, [], "封禁时间（UTC）"),
+          f("banned_by", "VARCHAR(40)", true, ["FK"], "执行封禁的管理员", "—", { table: "users", column: "id" }),
+          f("ban_reason", "VARCHAR(500)", true, [], "封禁原因"),
           f("player_id", "VARCHAR(100)", true, ["FK", "UQ"], "一对一绑定的玩家档案；玩家删除时自动解绑", "—", { table: "players", column: "id", onDelete: "SET NULL" }),
           ...timestampFields(),
         ],
-        constraints: ["PRIMARY KEY (id)", "UNIQUE (username)", "UNIQUE (player_id)", "FOREIGN KEY player_id → players.id ON DELETE SET NULL"],
+        constraints: ["PRIMARY KEY (id)", "UNIQUE (username)", "UNIQUE (minecraft_name)", "UNIQUE (player_id)", "role_id → roles.id", "player_id → players.id ON DELETE SET NULL"],
       },
       {
-        name: "user_permissions", label: "用户能力", domain: "identity", kind: "link",
-        purpose: "给普通用户授予少量固定能力；不实现任意角色或通用 ACL。",
-        ownership: "管理员维护", lifecycle: "账号删除时级联删除", sensitivity: "中：授权信息",
+        name: "roles", label: "固定角色", domain: "identity", kind: "business",
+        purpose: "保存管理员与普通用户两个固定系统角色及其中文显示信息；未登录访客不是数据库角色。",
+        ownership: "系统迁移维护", lifecycle: "角色固定，不支持任意创建或删除", sensitivity: "低",
         fields: [
-          f("id", "BIGINT", false, ["PK"], "内部自增行 ID", "数据库：AUTO_INCREMENT"),
-          f("user_id", "VARCHAR(40)", false, ["FK", "UQ*"], "被授权账号", "—", { table: "users", column: "id", onDelete: "CASCADE" }),
-          f("permission", "VARCHAR(64)", false, ["UQ*"], "固定能力标识，如 photo.create、story.publish"),
+          f("id", "VARCHAR(40)", false, ["PK"], "固定角色 ID"),
+          f("code", "VARCHAR(32)", false, ["UQ"], "稳定角色代码：admin / user"),
+          f("name_zh", "VARCHAR(40)", false, [], "管理界面使用的中文名称"),
+          f("description", "VARCHAR(240)", false, [], "角色用途说明"),
+          f("is_system", "TINYINT(1)", false, [], "是否为系统固定角色", "数据库：true"),
         ],
-        constraints: ["PRIMARY KEY (id)", "UNIQUE (user_id, permission)", "FOREIGN KEY user_id → users.id ON DELETE CASCADE", "当前白名单共 7 项，由服务层校验"],
+        constraints: ["PRIMARY KEY (id)", "UNIQUE (code)"],
+      },
+      {
+        name: "permissions", label: "权限目录", domain: "identity", kind: "business",
+        purpose: "保存由代码和迁移维护的固定能力标识及中文说明。",
+        ownership: "系统迁移维护", lifecycle: "随权限契约版本演进", sensitivity: "低",
+        fields: [
+          f("code", "VARCHAR(64)", false, ["PK"], "稳定能力标识，如 photo.update.own"),
+          f("name_zh", "VARCHAR(80)", false, [], "简洁中文名称"),
+          f("group_name", "VARCHAR(40)", false, [], "管理界面的权限分组"),
+          f("description", "VARCHAR(240)", false, [], "能力边界说明"),
+          f("sort_order", "BIGINT", false, [], "显示顺序"),
+        ],
+        constraints: ["PRIMARY KEY (code)"],
+      },
+      {
+        name: "role_permissions", label: "角色—权限", domain: "identity", kind: "link",
+        purpose: "连接固定角色与固定权限，不提供逐用户权限覆盖。",
+        ownership: "管理员通过后台维护", lifecycle: "角色或权限删除时级联清理", sensitivity: "中：授权信息",
+        fields: [
+          f("role_id", "VARCHAR(40)", false, ["PK", "FK"], "角色", "—", { table: "roles", column: "id", onDelete: "CASCADE" }),
+          f("permission_code", "VARCHAR(64)", false, ["PK", "FK"], "权限", "—", { table: "permissions", column: "code", onDelete: "CASCADE" }),
+        ],
+        constraints: ["COMPOSITE PRIMARY KEY (role_id, permission_code)", "role_id → roles.id ON DELETE CASCADE", "permission_code → permissions.code ON DELETE CASCADE"],
       },
       {
         name: "user_sessions", label: "登录会话", domain: "identity", kind: "business",
@@ -942,24 +975,8 @@
         constraints: ["PRIMARY KEY (id)", "UNIQUE INDEX ix_user_sessions_token_hash (token_hash)", "INDEX (user_id)", "FOREIGN KEY user_id → users.id ON DELETE CASCADE"],
       },
       {
-        name: "invitations", label: "注册邀请", domain: "identity", kind: "business",
-        purpose: "邀请码及预授予能力集合，支撑轻量的邀请注册流程。",
-        ownership: "管理员创建，注册流程消费", lifecycle: "到期或使用后不可再次消费", sensitivity: "高：邀请码只保存摘要",
-        fields: [
-          f("id", "VARCHAR(40)", false, ["PK"], "邀请记录 ID"),
-          f("code_hash", "VARCHAR(64)", false, ["UQ"], "原始邀请码的 SHA-256 摘要"),
-          f("permissions", "JSON", false, [], "注册成功后授予的固定能力标识数组"),
-          f("expires_at", "DATETIME", false, [], "邀请码到期时间（UTC）"),
-          f("created_by", "VARCHAR(40)", false, ["FK"], "创建邀请的管理员", "—", { table: "users", column: "id" }),
-          f("used_by", "VARCHAR(40)", true, ["FK"], "最终使用邀请注册的账号", "—", { table: "users", column: "id" }),
-          f("used_at", "DATETIME", true, [], "实际使用时间（UTC）"),
-          f("created_at", "DATETIME", false, [], "邀请创建时间（UTC）"),
-        ],
-        constraints: ["PRIMARY KEY (id)", "UNIQUE (code_hash)", "INDEX (created_by)", "INDEX (used_by)", "created_by / used_by 均引用 users.id"],
-      },
-      {
         name: "audit_logs", label: "审计日志", domain: "identity", kind: "business",
-        purpose: "记录权限变更、发布下架、评论隐藏等关键管理动作。目标采用类型与 ID 的轻量多态引用。",
+        purpose: "记录权限变更、发布归档、账号封禁和内容软删除等关键管理动作。目标采用类型与 ID 的轻量多态引用。",
         ownership: "业务服务只追加", lifecycle: "作为历史证据长期保留", sensitivity: "中：操作轨迹与元数据",
         fields: [
           f("id", "VARCHAR(40)", false, ["PK"], "审计记录 ID"),
@@ -990,7 +1007,7 @@
       {
         name: "photos", label: "散图", domain: "content", kind: "business",
         purpose: "照片的策展信息、作者归属、拍摄者与发布状态；一张媒体资产最多编目为一张散图。",
-        ownership: "author_user_id 决定内容归属", lifecycle: "draft → pending → published / rejected → archived", sensitivity: "公开内容；草稿与拒绝原因非公开",
+        ownership: "author_user_id 决定内容归属", lifecycle: "draft → published → archived；管理员可软删除", sensitivity: "公开内容；草稿非公开",
         fields: [
           f("id", "VARCHAR(120)", false, ["PK"], "系统生成的稳定照片 ID"),
           f("title", "VARCHAR(160)", false, [], "照片标题"),
@@ -1029,7 +1046,7 @@
       {
         name: "stories", label: "作品集", domain: "content", kind: "business",
         purpose: "主题历史作品集；关系字段保持规范化，灵活的正文区块保存在 sections JSON。",
-        ownership: "author_user_id 决定内容归属", lifecycle: "draft → pending → published / rejected → archived", sensitivity: "公开内容；草稿与拒绝原因非公开",
+        ownership: "author_user_id 决定内容归属", lifecycle: "draft → published → archived；管理员可软删除", sensitivity: "公开内容；草稿非公开",
         fields: [
           f("id", "VARCHAR(120)", false, ["PK"], "系统生成的稳定作品集 ID"),
           f("title", "VARCHAR(160)", false, [], "作品集标题"),
@@ -1042,18 +1059,20 @@
       },
       {
         name: "comments", label: "照片评论", domain: "content", kind: "business",
-        purpose: "已登录用户对已发布照片的异步评论；支持管理员隐藏与恢复。",
-        ownership: "author_user_id 标识评论作者", lifecycle: "published / hidden；照片删除时级联删除", sensitivity: "用户生成内容",
+        purpose: "已登录用户对已发布照片的异步评论；作者可撤回，管理员可软删除。",
+        ownership: "author_user_id 标识评论作者", lifecycle: "published / withdrawn / deleted；照片删除时级联删除", sensitivity: "用户生成内容",
         fields: [
           f("id", "VARCHAR(40)", false, ["PK"], "系统生成的评论 ID"),
           f("photo_id", "VARCHAR(120)", false, ["FK"], "评论所属照片", "—", { table: "photos", column: "id", onDelete: "CASCADE" }),
           f("author_user_id", "VARCHAR(40)", false, ["FK"], "评论作者账号", "—", { table: "users", column: "id" }),
           f("body", "TEXT", false, [], "评论正文；API 当前限制 1–1000 字符"),
-          f("status", "VARCHAR(20)", false, [], "评论状态：published / hidden", "应用层：published"),
-          f("hidden_reason", "VARCHAR(500)", true, [], "管理员隐藏原因"),
+          f("status", "VARCHAR(20)", false, [], "评论状态：published / withdrawn / deleted", "应用层：published"),
+          f("deletion_reason", "VARCHAR(500)", true, [], "管理员删除原因"),
+          f("deleted_at", "DATETIME", true, [], "软删除时间（UTC）"),
+          f("deleted_by", "VARCHAR(40)", true, ["FK"], "执行删除的管理员", "—", { table: "users", column: "id" }),
           ...timestampFields(),
         ],
-        constraints: ["PRIMARY KEY (id)", "INDEX (photo_id)", "INDEX (author_user_id)", "photo_id → photos.id ON DELETE CASCADE", "author_user_id → users.id"],
+        constraints: ["PRIMARY KEY (id)", "INDEX (photo_id)", "INDEX (author_user_id)", "photo_id → photos.id ON DELETE CASCADE", "author_user_id / deleted_by → users.id"],
       },
       {
         name: "photo_players", label: "照片—玩家", domain: "content", kind: "link",
@@ -1132,8 +1151,8 @@
         name: "alembic_version", label: "迁移版本", domain: "system", kind: "system",
         purpose: "Alembic 内部表，记录数据库已应用的迁移头；不承载业务数据。",
         ownership: "Alembic 命令维护", lifecycle: "随迁移升级或降级更新", sensitivity: "低",
-        fields: [f("version_num", "VARCHAR(32)", false, ["PK"], "当前迁移版本；实况为 20261101_0005")],
-        constraints: ["PRIMARY KEY (version_num)", "当前值：20261101_0005"],
+        fields: [f("version_num", "VARCHAR(32)", false, ["PK"], "当前迁移版本；实况为 20261105_0006")],
+        constraints: ["PRIMARY KEY (version_num)", "当前值：20261105_0006"],
       },
     ];
 

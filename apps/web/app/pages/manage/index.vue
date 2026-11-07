@@ -5,7 +5,7 @@ useHead({ title: '编目工作台 · McAlbum' })
 const tasks = computed(() => [
   { to: '/manage/photos', title: '上传一张照片', text: '一次完成原图入库，并补充标题、时间与标签。', permission: 'photo.create' },
   { to: '/manage/stories', title: '编排一篇作品集', text: '将文字与图片区块排成完整叙事。', permission: 'story.create' },
-  { to: '/manage/profile', title: '维护玩家档案', text: '决定哪些个人信息可以在世界档案中出现。', permission: 'profile.self.update' },
+  { to: '/manage/profile', title: '维护玩家档案', text: '决定哪些个人信息可以在世界档案中出现。', permission: 'profile.manage.own' },
 ].filter(task => api.can(task.permission)))
 </script>
 

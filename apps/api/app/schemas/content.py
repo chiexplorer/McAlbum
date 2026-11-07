@@ -5,7 +5,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-PublicationStatus = Literal["draft", "pending", "published", "rejected", "archived"]
+PublicationStatus = Literal["draft", "pending", "published", "rejected", "archived", "deleted"]
 
 
 class PlayerProfileUpdate(BaseModel):
@@ -119,7 +119,7 @@ class StoryResponse(StoryWrite):
 
 
 class TransitionRequest(BaseModel):
-    target_status: Literal["pending", "published", "rejected", "archived"]
+    target_status: Literal["published", "archived"]
     reason: str | None = Field(default=None, max_length=500)
 
 
@@ -134,11 +134,11 @@ class CommentResponse(BaseModel):
     photo_id: str
     author_user_id: str
     body: str
-    status: Literal["published", "hidden"]
-    hidden_reason: str | None
+    status: Literal["published", "withdrawn", "deleted"]
+    deletion_reason: str | None
+    deleted_at: datetime | None
     created_at: datetime
 
 
-class CommentModeration(BaseModel):
-    hidden: bool
+class CommentDelete(BaseModel):
     reason: str | None = Field(default=None, max_length=500)

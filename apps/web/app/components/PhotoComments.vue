@@ -16,12 +16,19 @@ async function publish() {
   catch (caught) { error.value = api.errorMessage(caught) }
   finally { busy.value = false }
 }
+async function withdraw(comment: CommentItem) {
+  if (!window.confirm('确认撤回这条评论？')) return
+  try {
+    await api.request(`/comments/${comment.id}/withdraw`, { method: 'POST' })
+    comments.value = comments.value.filter(item => item.id !== comment.id)
+  } catch (caught) { error.value = api.errorMessage(caught) }
+}
 </script>
 
 <template>
   <div class="photo-comments">
     <ol v-if="comments.length" class="photo-comments__list">
-      <li v-for="comment in comments" :key="comment.id"><p>{{ comment.body }}</p><small>已登录玩家 · {{ comment.created_at ? new Date(comment.created_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }) : '档案评论' }}</small></li>
+      <li v-for="comment in comments" :key="comment.id"><p>{{ comment.body }}</p><small>已登录玩家 · {{ comment.created_at ? new Date(comment.created_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }) : '档案评论' }}</small><button v-if="comment.author_user_id === api.session.value?.user.id && api.can('comment.withdraw.own')" type="button" @click="withdraw(comment)">撤回</button></li>
     </ol>
     <EmptyState v-else title="还没有公开评论" description="登录后可以留下与这张照片有关的补充记录。" />
     <form v-if="api.session.value && api.can('comment.create')" class="photo-comments__form" @submit.prevent="publish">

@@ -52,13 +52,13 @@ class PublicationService:
         self.settings = get_settings()
 
     def rebuild(self, principal: Principal) -> dict[str, object]:
-        AuthService.require_admin(principal)
+        AuthService.require(principal, "snapshot.publish")
         if not self.settings.enable_build_trigger:
             raise HTTPException(
                 status.HTTP_409_CONFLICT,
                 "静态重建未启用；请设置 MCALBUM_ENABLE_BUILD_TRIGGER=true",
             )
-        counts = self._export_published()
+        counts = self.export_published()
         environment = os.environ.copy()
         environment["MCALBUM_PUBLISHED_ONLY"] = "1"
         command = "npm.cmd" if os.name == "nt" else "npm"
@@ -80,13 +80,18 @@ class PublicationService:
         self.db.commit()
         return {"status": "ready", "counts": counts, "output": completed.stdout[-1000:]}
 
-    def _export_published(self) -> dict[str, int]:
+    def export_published(self) -> dict[str, int]:
+        """把数据库公开内容同步为静态快照，并移除已失效的旧 JSON。"""
+
         content = ContentService(self.db)
         media = list(
             self.db.scalars(select(MediaAsset).where(MediaAsset.processing_status == "ready"))
         )
         photos = list(self.db.scalars(select(Photo).where(Photo.status == "published")))
         stories = list(self.db.scalars(select(Story).where(Story.status == "published")))
+        self._prune_collection("media-assets", {item.id for item in media})
+        self._prune_collection("photos", {item.id for item in photos})
+        self._prune_collection("stories", {item.id for item in stories})
         for asset in media:
             variants = list(
                 self.db.scalars(select(MediaVariant).where(MediaVariant.asset_id == asset.id))
@@ -173,6 +178,15 @@ class PublicationService:
             "photos": len(photos),
             "stories": len(stories),
         }
+
+    @staticmethod
+    def _prune_collection(collection: str, retained_ids: set[str]) -> None:
+        """仅删除指定内容集合中不再公开的 JSON 快照。"""
+
+        directory = CONTENT_ROOT / collection
+        for path in directory.glob("*.json"):
+            if path.stem not in retained_ids:
+                path.unlink()
 
     def _public_comments(self, photo_id: str) -> list[dict[str, object]]:
         rows = self.db.execute(

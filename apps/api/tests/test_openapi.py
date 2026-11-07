@@ -10,7 +10,10 @@ def test_collaboration_routes_are_documented() -> None:
     assert "/api/manage/media" in paths
     assert "/api/manage/photos/{item_id}/transition" in paths
     assert "/api/manage/stories/{item_id}/transition" in paths
-    assert "/api/admin/users/{user_id}/permissions" in paths
+    assert "/api/auth/register" in paths
+    assert "/api/admin/users/{user_id}/review" in paths
+    assert "/api/admin/users/{user_id}/role" in paths
+    assert "/api/admin/roles/{role_id}/permissions" in paths
     assert "/api/admin/publish" in paths
     assert "/api/public/photos" in paths
     assert "/api/public/photos/feed" in paths

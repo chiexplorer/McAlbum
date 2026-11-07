@@ -3,6 +3,8 @@ export interface SessionUser {
   username: string
   display_name: string
   role: 'user' | 'admin'
+  role_name: string
+  status: 'pending' | 'active' | 'rejected' | 'banned'
   player_id: string | null
   permissions: string[]
 }
@@ -67,7 +69,7 @@ export function useManageApi() {
   }
 
   function can(permission: string) {
-    return session.value?.user.role === 'admin' || session.value?.user.permissions.includes(permission)
+    return session.value?.user.permissions.includes(permission) ?? false
   }
 
   function errorMessage(error: unknown) {

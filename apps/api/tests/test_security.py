@@ -4,6 +4,7 @@ import pytest
 from pydantic import ValidationError
 
 from app.core.security import hash_password, secret_hash, secrets_equal, verify_password
+from app.schemas.auth import RegisterRequest
 from app.schemas.content import PhotoWrite, StoryWrite
 from app.services.auth import ALLOWED_PERMISSIONS
 from app.services.content import new_photo_id
@@ -26,8 +27,22 @@ def test_secret_hash_comparison() -> None:
 
 def test_permissions_remain_fixed_and_small() -> None:
     assert "photo.create" in ALLOWED_PERMISSIONS
-    assert "photo.publish" in ALLOWED_PERMISSIONS
+    assert "photo.publish.own" in ALLOWED_PERMISSIONS
     assert all("*" not in permission for permission in ALLOWED_PERMISSIONS)
+
+
+def test_registration_password_requires_letter_and_number() -> None:
+    common = {
+        "username": "test-user",
+        "display_name": "测试玩家",
+        "minecraft_name": "Test_Player",
+        "application_reason": "服务器成员",
+    }
+    with pytest.raises(ValidationError):
+        RegisterRequest.model_validate({**common, "password": "12345678"})
+    with pytest.raises(ValidationError):
+        RegisterRequest.model_validate({**common, "password": "abcdefgh"})
+    assert RegisterRequest.model_validate({**common, "password": "abcd1234"})
 
 
 def test_photo_ids_are_generated_and_url_safe() -> None:

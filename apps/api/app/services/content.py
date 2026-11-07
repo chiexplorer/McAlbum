@@ -24,10 +24,10 @@ from app.services.auth import AuthService, Principal
 ContentKind = Literal["photo", "story"]
 CONTENT_MODELS = {"photo": Photo, "story": Story}
 CREATE_PERMISSIONS = {"photo": "photo.create", "story": "story.create"}
-PUBLISH_PERMISSIONS = {
-    "photo": "photo.publish",
-    "story": "story.publish",
-}
+UPDATE_PERMISSIONS = {"photo": "photo.update.own", "story": "story.update.own"}
+PUBLISH_PERMISSIONS = {"photo": "photo.publish.own", "story": "story.publish.own"}
+ARCHIVE_PERMISSIONS = {"photo": "photo.archive.own", "story": "story.archive.own"}
+DELETE_PERMISSIONS = {"photo": "photo.delete.any", "story": "story.delete.any"}
 RELATION_FIELDS = {
     "photo": ("tags", "player_ids", "story_ids"),
     "story": ("player_ids",),
@@ -56,7 +56,7 @@ class ContentService:
 
     def list_for(self, kind: ContentKind, principal: Principal) -> list[dict[str, Any]]:
         model = CONTENT_MODELS[kind]
-        if principal.is_admin:
+        if principal.can(DELETE_PERMISSIONS[kind]):
             items = list(self.db.scalars(select(model).order_by(model.updated_at.desc())))
         else:
             items = self.repo.list_owned(model, principal.user.id)
@@ -97,9 +97,10 @@ class ContentService:
     def update(
         self, kind: ContentKind, item_id: str, principal: Principal, data: dict[str, Any]
     ) -> dict[str, Any]:
+        AuthService.require(principal, UPDATE_PERMISSIONS[kind])
         item = self._owned(kind, item_id, principal)
-        if item.status not in {"draft", "rejected"} and not principal.is_admin:
-            raise HTTPException(status.HTTP_409_CONFLICT, "只有草稿或被退回内容可以编辑")
+        if item.status == "deleted":
+            raise HTTPException(status.HTTP_409_CONFLICT, "已删除内容不能编辑")
         relations = self._pop_relations(kind, data)
         self._validate_references(principal, kind, data, relations)
         if kind == "photo":
@@ -121,27 +122,18 @@ class ContentService:
         target: str,
         reason: str | None,
     ) -> dict[str, Any]:
-        item = self._owned(kind, item_id, principal, allow_review=True)
+        item = self._owned(kind, item_id, principal)
         current = item.status
-        if target == "pending":
-            if current not in {"draft", "rejected"}:
-                raise HTTPException(status.HTTP_409_CONFLICT, "当前状态不能提交审核")
-        elif target == "published":
-            if current not in {"draft", "pending"}:
+        if target == "published":
+            AuthService.require(principal, PUBLISH_PERMISSIONS[kind])
+            if current not in {"draft", "rejected", "archived"}:
                 raise HTTPException(status.HTTP_409_CONFLICT, "当前状态不能发布")
-            if not principal.can(PUBLISH_PERMISSIONS[kind]):
-                raise HTTPException(status.HTTP_403_FORBIDDEN, "缺少直接发布或审核权限")
             item.published_at = utc_now()
             item.published_by = principal.user.id
-        elif target == "rejected":
-            if not principal.is_admin or current != "pending" or not reason:
-                raise HTTPException(status.HTTP_409_CONFLICT, "退回审核必须由管理员填写原因")
-            item.rejection_reason = reason
         elif target == "archived":
-            if current != "published" or not (
-                principal.is_admin or principal.can(PUBLISH_PERMISSIONS[kind])
-            ):
-                raise HTTPException(status.HTTP_403_FORBIDDEN, "无权归档该内容")
+            AuthService.require(principal, ARCHIVE_PERMISSIONS[kind])
+            if current != "published":
+                raise HTTPException(status.HTTP_409_CONFLICT, "只有已发布内容可以归档")
         else:
             raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "不支持的目标状态")
         item.status = target
@@ -153,6 +145,21 @@ class ContentService:
             item.id,
             {"from": current, "reason": reason} if reason else {"from": current},
         )
+        self.db.commit()
+        return self.serialize(kind, item)
+
+    def delete(self, kind: ContentKind, item_id: str, principal: Principal) -> dict[str, Any]:
+        """管理员软删除内容，保留关系与审计记录以便追溯。"""
+
+        AuthService.require(principal, DELETE_PERMISSIONS[kind])
+        item = self.repo.get(CONTENT_MODELS[kind], item_id)
+        if item is None:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "内容不存在")
+        if item.status == "deleted":
+            raise HTTPException(status.HTTP_409_CONFLICT, "内容已经删除")
+        previous = item.status
+        item.status, item.updated_at = "deleted", utc_now()
+        self.auth.audit(principal.user.id, f"{kind}.delete", kind, item.id, {"from": previous})
         self.db.commit()
         return self.serialize(kind, item)
 
@@ -247,16 +254,11 @@ class ContentService:
                     f"关联对象不存在：{', '.join(missing)}",
                 )
 
-    def _owned(
-        self, kind: ContentKind, item_id: str, principal: Principal, allow_review: bool = False
-    ) -> Any:
+    def _owned(self, kind: ContentKind, item_id: str, principal: Principal) -> Any:
         item = self.repo.get(CONTENT_MODELS[kind], item_id)
         if item is None:
             raise HTTPException(status.HTTP_404_NOT_FOUND, "内容不存在")
-        reviewing = (
-            allow_review and principal.can(PUBLISH_PERMISSIONS[kind]) and item.status == "pending"
-        )
-        if not principal.is_admin and item.author_user_id != principal.user.id and not reviewing:
+        if item.author_user_id != principal.user.id:
             raise HTTPException(status.HTTP_403_FORBIDDEN, "只能操作自己的内容")
         return item
 
@@ -276,7 +278,7 @@ class ContentService:
             asset = self.db.get(MediaAsset, asset_id)
             if asset is None or asset.processing_status != "ready":
                 raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, f"媒体不可用：{asset_id}")
-            if not principal.is_admin and asset.owner_user_id != principal.user.id:
+            if asset.owner_user_id != principal.user.id:
                 raise HTTPException(status.HTTP_403_FORBIDDEN, "不能使用其他用户的未发布媒体")
 
     @staticmethod

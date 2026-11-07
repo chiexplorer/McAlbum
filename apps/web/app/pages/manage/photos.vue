@@ -18,7 +18,7 @@ interface PhotoItem {
   photographer_id: string | null, tags: string[],
   player_ids: string[], story_ids: string[], featured: boolean,
   display_variant: 'featured' | 'normal' | 'portrait' | 'note', status: string,
-  rejection_reason: string | null,
+  rejection_reason: string | null, author_user_id: string,
 }
 
 const api = useManageApi()
@@ -187,15 +187,21 @@ async function save() {
 }
 
 async function transition(photo: PhotoItem, target_status: string) {
-  const reason = target_status === 'rejected' ? window.prompt('填写退回原因') : null
-  if (target_status === 'rejected' && !reason) return
   try {
     const updated = await api.request<PhotoItem>(`/manage/photos/${photo.id}/transition`, {
-      method: 'POST', body: { target_status, reason },
+      method: 'POST', body: { target_status, reason: null },
     })
     photos.value[photos.value.findIndex(item => item.id === updated.id)] = updated
   }
   catch (caught) { error.value = api.errorMessage(caught) }
+}
+
+async function remove(photo: PhotoItem) {
+  if (!window.confirm('确认删除这条照片记录？原图仍会保留。')) return
+  try {
+    const updated = await api.request<PhotoItem>(`/manage/photos/${photo.id}`, { method: 'DELETE' })
+    photos.value[photos.value.findIndex(item => item.id === updated.id)] = updated
+  } catch (caught) { error.value = api.errorMessage(caught) }
 }
 </script>
 
@@ -206,7 +212,7 @@ async function transition(photo: PhotoItem, target_status: string) {
       <h1>{{ editingId ? '修订照片记录' : '上传并建立照片记录' }}</h1>
       <p>{{ editingId ? '标题和说明可以继续修订，公开网址始终保持稳定。' : '一次填写即可完成原图入库和草稿建立；媒体 ID 与照片 ID 均由系统维护。' }}</p>
     </header>
-    <form class="manage-form manage-form--columns" @submit.prevent="save">
+    <form v-if="api.can('photo.create') || editingId" class="manage-form manage-form--columns" @submit.prevent="save">
       <fieldset v-if="!editingId" class="manage-step manage-span">
         <legend><span>1</span> 选择图片</legend>
         <div class="manage-step__grid">
@@ -237,7 +243,7 @@ async function transition(photo: PhotoItem, target_status: string) {
       <h2>照片记录</h2>
       <article v-for="photo in photos" :key="photo.id">
         <div><span class="manage-status" :data-status="photo.status">{{ photo.status }}</span><h3>{{ photo.title }}</h3><p>{{ photo.description }}</p><small v-if="photo.rejection_reason">退回原因：{{ photo.rejection_reason }}</small></div>
-        <div class="manage-actions"><button type="button" @click="edit(photo)">编辑</button><button v-if="['draft', 'rejected'].includes(photo.status)" type="button" @click="transition(photo, api.can('photo.publish') ? 'published' : 'pending')">{{ api.can('photo.publish') ? '发布' : '提交审核' }}</button><button v-if="photo.status === 'pending' && api.session.value?.user.role === 'admin'" type="button" @click="transition(photo, 'published')">通过</button><button v-if="photo.status === 'pending' && api.session.value?.user.role === 'admin'" type="button" @click="transition(photo, 'rejected')">退回</button><button v-if="photo.status === 'published' && api.can('photo.publish')" type="button" @click="transition(photo, 'archived')">归档</button></div>
+        <div class="manage-actions"><button v-if="photo.author_user_id === api.session.value?.user.id && api.can('photo.update.own')" type="button" @click="edit(photo)">编辑</button><button v-if="photo.author_user_id === api.session.value?.user.id && ['draft', 'rejected', 'archived'].includes(photo.status) && api.can('photo.publish.own')" type="button" @click="transition(photo, 'published')">发布</button><button v-if="photo.author_user_id === api.session.value?.user.id && photo.status === 'published' && api.can('photo.archive.own')" type="button" @click="transition(photo, 'archived')">归档</button><button v-if="photo.status !== 'deleted' && api.can('photo.delete.any')" type="button" @click="remove(photo)">删除</button></div>
       </article>
     </section>
   </ManageShell>

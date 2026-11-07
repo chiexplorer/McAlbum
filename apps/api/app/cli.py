@@ -22,6 +22,9 @@ from app.models import (
     User,
 )
 from app.repositories.content import ContentRepository
+from app.repositories.users import UserRepository
+from app.services.media_integrity import MediaIntegrityService
+from app.services.publication import PublicationService
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 
@@ -52,14 +55,25 @@ def create_admin(username: str, display_name: str) -> None:
         if db.scalar(select(User).where(User.username == normalized)):
             raise SystemExit("用户名已存在")
         now = utc_now()
+        admin_role = UserRepository(db).role_by_code("admin")
+        if admin_role is None:
+            raise SystemExit("数据库尚未初始化固定角色，请先执行 Alembic 迁移")
         db.add(
             User(
                 id=f"usr_{uuid4().hex}",
                 username=normalized,
                 display_name=display_name.strip(),
                 password_hash=hash_password(password),
-                role="admin",
-                enabled=True,
+                role_id=admin_role.id,
+                status="active",
+                minecraft_name=None,
+                application_reason="命令行创建的初始管理员",
+                review_reason=None,
+                reviewed_at=None,
+                reviewed_by=None,
+                banned_at=None,
+                banned_by=None,
+                ban_reason=None,
                 player_id=None,
                 created_at=now,
                 updated_at=now,
@@ -74,7 +88,7 @@ def import_content(owner_username: str) -> None:
 
     with SessionLocal() as db:
         owner = db.scalar(select(User).where(User.username == owner_username.strip().lower()))
-        if owner is None or owner.role != "admin":
+        if owner is None or UserRepository(db).role(owner).code != "admin":
             raise SystemExit("导入账号不存在或不是管理员")
         now = utc_now()
         media_count = 0
@@ -186,6 +200,48 @@ def import_content(owner_username: str) -> None:
     print(f"导入完成：{summary}")
 
 
+def cleanup_missing_media(actor_username: str | None, apply_changes: bool) -> None:
+    """扫描缺失媒体；只有显式传入 --apply 时才软删除受影响内容。"""
+
+    with SessionLocal() as db:
+        service = MediaIntegrityService(db)
+        report = service.scan()
+        if not report.has_issues:
+            print("媒体一致性检查通过：没有发现缺失的原图或变体。")
+            return
+
+        print(f"发现 {len(report.invalid_media)} 个无效媒体资产：")
+        for item in report.invalid_media:
+            print(f"- {item.asset_id}：{'；'.join(item.reasons)}")
+        print(
+            f"受影响内容：照片 {len(report.photo_ids)}、作品集 {len(report.story_ids)}、"
+            f"玩家头像 {len(report.player_ids)}"
+        )
+        if not apply_changes:
+            print("当前为只读扫描；确认结果后增加 --apply 和 --actor <管理员用户名>。")
+            return
+        if not actor_username:
+            raise SystemExit("应用清理时必须通过 --actor 指定管理员用户名")
+        actor = db.scalar(
+            select(User).where(User.username == actor_username.strip().lower())
+        )
+        if (
+            actor is None
+            or actor.status != "active"
+            or UserRepository(db).role(actor).code != "admin"
+        ):
+            raise SystemExit("指定账号不存在、未启用或不是管理员")
+
+        service.apply(report, actor.id)
+        db.commit()
+        counts = PublicationService(db).export_published()
+        print(
+            "清理完成：受影响内容已软删除，缺失媒体已标记为 failed；"
+            f"静态快照已同步（媒体 {counts['media']}、照片 {counts['photos']}、"
+            f"作品集 {counts['stories']}）。"
+        )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -194,11 +250,18 @@ def main() -> None:
     admin.add_argument("--display-name", required=True)
     importer = subparsers.add_parser("import-content")
     importer.add_argument("--owner", required=True, help="接收现有内容归属的管理员用户名")
+    cleanup = subparsers.add_parser(
+        "cleanup-missing-media", help="扫描并隔离数据库中缺少本地文件的媒体内容"
+    )
+    cleanup.add_argument("--apply", action="store_true", help="应用软删除并同步静态快照")
+    cleanup.add_argument("--actor", help="写入审计日志的管理员用户名")
     args = parser.parse_args()
     if args.command == "create-admin":
         create_admin(args.username, args.display_name)
-    else:
+    elif args.command == "import-content":
         import_content(args.owner)
+    else:
+        cleanup_missing_media(args.actor, args.apply)
 
 
 if __name__ == "__main__":

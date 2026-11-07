@@ -42,6 +42,11 @@ def transition_photo(
     )
 
 
+@router.delete("/photos/{item_id}", response_model=PhotoResponse)
+def delete_photo(item_id: str, principal: CsrfPrincipal, db: Db) -> object:
+    return ContentService(db).delete("photo", item_id, principal)
+
+
 @router.get("/stories", response_model=list[StoryResponse])
 def list_stories(principal: PrincipalDep, db: Db) -> list[object]:
     return ContentService(db).list_for("story", principal)
@@ -67,3 +72,8 @@ def transition_story(
     return ContentService(db).transition(
         "story", item_id, principal, payload.target_status, payload.reason
     )
+
+
+@router.delete("/stories/{item_id}", response_model=StoryResponse)
+def delete_story(item_id: str, principal: CsrfPrincipal, db: Db) -> object:
+    return ContentService(db).delete("story", item_id, principal)

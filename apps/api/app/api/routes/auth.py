@@ -1,18 +1,23 @@
-"""登录、退出、邀请注册和当前会话接口。"""
+"""登录、注册申请、退出和当前会话接口。"""
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Request, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 
 from app.api.dependencies import CsrfPrincipal, Db, PrincipalDep
 from app.core.config import get_settings
-from app.core.rate_limit import limit
-from app.schemas.auth import LoginRequest, RegisterRequest, SessionResponse, SessionUser
+from app.core.rate_limit import check_limit, limit
+from app.schemas.auth import (
+    LoginRequest,
+    RegisterRequest,
+    RegistrationResponse,
+    SessionResponse,
+    SessionUser,
+)
 from app.services.auth import AuthService, Principal
 
 router = APIRouter(prefix="/auth")
-login_limit = limit("login", 8, 300)
-LoginLimited = Annotated[None, Depends(login_limit)]
+LoginLimited = Annotated[None, Depends(limit("login", 8, 300))]
 
 
 def session_response(principal: Principal, csrf_token: str) -> SessionResponse:
@@ -21,7 +26,9 @@ def session_response(principal: Principal, csrf_token: str) -> SessionResponse:
             id=principal.user.id,
             username=principal.user.username,
             display_name=principal.user.display_name,
-            role=principal.user.role,
+            role=principal.role_code,
+            role_name=principal.role_name,
+            status=principal.user.status,
             player_id=principal.user.player_id,
             permissions=sorted(principal.permissions),
         ),
@@ -34,63 +41,46 @@ def set_session_cookies(response: Response, token: str, csrf_token: str) -> None
     settings = get_settings()
     max_age = settings.session_ttl_hours * 3600
     response.set_cookie(
-        settings.session_cookie_name,
-        token,
-        max_age=max_age,
-        httponly=True,
-        secure=settings.cookie_secure,
-        samesite="lax",
-        path="/",
+        settings.session_cookie_name, token, max_age=max_age, httponly=True,
+        secure=settings.cookie_secure, samesite="lax", path="/",
     )
     response.set_cookie(
-        "mcalbum_csrf",
-        csrf_token,
-        max_age=max_age,
-        httponly=False,
-        secure=settings.cookie_secure,
-        samesite="lax",
-        path="/",
+        "mcalbum_csrf", csrf_token, max_age=max_age, httponly=False,
+        secure=settings.cookie_secure, samesite="lax", path="/",
     )
 
 
 @router.post("/login", response_model=SessionResponse)
-def login(
-    payload: LoginRequest,
-    response: Response,
-    db: Db,
-    _limited: LoginLimited,
-) -> SessionResponse:
+def login(payload: LoginRequest, response: Response, db: Db,
+          _limited: LoginLimited) -> SessionResponse:
     service = AuthService(db)
     user = service.authenticate(payload.username, payload.password)
     session, token, csrf_token = service.create_session(user)
     set_session_cookies(response, token, csrf_token)
-    return session_response(
-        Principal(user=user, session=session, permissions=service.users.permissions(user.id)),
-        csrf_token,
-    )
+    return session_response(service.principal(user, session), csrf_token)
 
 
-@router.post("/register", response_model=SessionResponse, status_code=status.HTTP_201_CREATED)
-def register(payload: RegisterRequest, response: Response, db: Db) -> SessionResponse:
-    service = AuthService(db)
-    user = service.register(
-        payload.username, payload.display_name, payload.password, payload.invitation_code
+@router.post("/register", response_model=RegistrationResponse,
+             status_code=status.HTTP_201_CREATED)
+def register(payload: RegisterRequest, request: Request, db: Db) -> RegistrationResponse:
+    """创建待审核申请；同一 IP 和账号名每小时分别最多提交五次。"""
+
+    address = request.client.host if request.client else "unknown"
+    window = get_settings().registration_rate_window_seconds
+    check_limit("register-ip", address, 5, window)
+    check_limit("register-account", payload.username.strip().lower(), 5, window)
+    if payload.website:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "注册申请无法提交")
+    AuthService(db).register(
+        payload.username, payload.display_name, payload.minecraft_name,
+        payload.application_reason, payload.password,
     )
-    session, token, csrf_token = service.create_session(user)
-    set_session_cookies(response, token, csrf_token)
-    return session_response(
-        Principal(user=user, session=session, permissions=service.users.permissions(user.id)),
-        csrf_token,
-    )
+    return RegistrationResponse(message="申请已提交，请等待管理员审核后再登录")
 
 
 @router.get("/session", response_model=SessionResponse)
-def get_session(
-    request: Request,
-    principal: PrincipalDep,
-) -> SessionResponse:
-    csrf_token = request.cookies.get("mcalbum_csrf", "")
-    return session_response(principal, csrf_token)
+def get_session(request: Request, principal: PrincipalDep) -> SessionResponse:
+    return session_response(principal, request.cookies.get("mcalbum_csrf", ""))
 
 
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)

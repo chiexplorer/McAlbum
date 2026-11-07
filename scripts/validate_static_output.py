@@ -121,7 +121,11 @@ def main() -> int:
             ):
                 errors.append(f"{relative}: 正式发布地址仍是 localhost")
 
-    media_files = [path for path in (OUTPUT / "media").rglob("*") if path.is_file()]
+    media_files = [
+        path
+        for path in (OUTPUT / "media").rglob("*")
+        if path.is_file() and not path.name.startswith(".")
+    ]
     invalid_media = [path for path in media_files if path.suffix.lower() != ".webp"]
     errors.extend(f"公开媒体不是 WebP：{path.relative_to(OUTPUT)}" for path in invalid_media)
 

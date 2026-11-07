@@ -48,7 +48,7 @@ def update_profile(
     principal: CsrfPrincipal,
     db: Db,
 ) -> dict[str, object]:
-    AuthService.require(principal, "profile.self.update")
+    AuthService.require(principal, "profile.manage.own")
     if payload.avatar_asset_id:
         asset = db.get(MediaAsset, payload.avatar_asset_id)
         if asset is None or (not principal.is_admin and asset.owner_user_id != principal.user.id):
