@@ -6,14 +6,28 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, File, Form, UploadFile, status
 
 from app.api.dependencies import CsrfPrincipal, Db, PrincipalDep
-from app.core.rate_limit import limit
+from app.core.config import get_settings
+from app.core.rate_limit import check_limit
 from app.repositories.content import ContentRepository
 from app.schemas.content import MediaAssetResponse
 from app.services.media import MediaService
 
 router = APIRouter(prefix="/manage/media")
-upload_limit = limit("media-upload", 20, 3600)
-UploadLimited = Annotated[None, Depends(upload_limit)]
+
+
+def check_upload_limit(principal: PrincipalDep) -> None:
+    """按账号独立计算上传额度，管理员使用更高但仍有边界的限额。"""
+
+    settings = get_settings()
+    attempts = (
+        settings.media_upload_limit_admin
+        if principal.is_admin
+        else settings.media_upload_limit_user
+    )
+    check_limit("media-upload-user", principal.user.id, attempts, 3600)
+
+
+UploadLimited = Annotated[None, Depends(check_upload_limit)]
 
 
 @router.get("", response_model=list[MediaAssetResponse])

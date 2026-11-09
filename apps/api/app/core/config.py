@@ -20,6 +20,8 @@ class Settings(BaseSettings):
     session_cookie_name: str = "mcalbum_session"
     session_ttl_hours: int = 168
     registration_rate_window_seconds: int = 3600
+    media_upload_limit_user: int = Field(default=20, ge=1, le=10000)
+    media_upload_limit_admin: int = Field(default=100, ge=1, le=10000)
     cookie_secure: bool = False
     trusted_origins: list[str] = Field(
         default_factory=lambda: ["http://localhost:3000", "http://127.0.0.1:3000"]
