@@ -61,6 +61,16 @@ describe('ApiContentRepository', () => {
     expect(photos[0]?.photo.title).toBe('刚刚发布的照片')
   })
 
+  it('读取相册实际可用的标签目录', async () => {
+    const fetcher = vi.fn().mockResolvedValue(['建筑', '夜景'])
+    const repository = new ApiContentRepository('http://localhost:8000/api', fetcher)
+
+    const tags = await repository.getTags()
+
+    expect(tags).toEqual(['建筑', '夜景'])
+    expect(fetcher).toHaveBeenCalledWith('http://localhost:8000/api/public/tags')
+  })
+
   it('读取公开照片详情及关联作品集', async () => {
     const fetcher = vi.fn().mockResolvedValue({
       ...entry,

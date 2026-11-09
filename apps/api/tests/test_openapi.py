@@ -15,6 +15,9 @@ def test_collaboration_routes_are_documented() -> None:
     assert "/api/admin/users/{user_id}/role" in paths
     assert "/api/admin/roles/{role_id}/permissions" in paths
     assert "/api/admin/publish" in paths
+    assert "/api/manage/tags" in paths
+    assert "/api/admin/tags/{tag_id}" in paths
+    assert "/api/public/tags" in paths
     assert "/api/public/photos" in paths
     assert "/api/public/photos/feed" in paths
     assert "/api/public/photos/timeline" in paths

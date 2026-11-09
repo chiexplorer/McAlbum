@@ -4,7 +4,7 @@ import hashlib
 from datetime import datetime
 from typing import TypeVar
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
 
 from app.core.database import Base
@@ -69,6 +69,37 @@ class ContentRepository:
                 .where(PhotoTagLink.photo_id == photo_id)
                 .order_by(Tag.name)
             )
+        )
+
+    def list_tags(self) -> list[tuple[Tag, int]]:
+        """返回完整标签目录及照片引用数量，供编目和管理界面共用。"""
+
+        rows = self.db.execute(
+            select(Tag, func.count(PhotoTagLink.photo_id))
+            .outerjoin(PhotoTagLink, PhotoTagLink.tag_id == Tag.id)
+            .group_by(Tag.id, Tag.name, Tag.normalized_name, Tag.created_at)
+            .order_by(Tag.name)
+        )
+        return [(tag, int(count)) for tag, count in rows]
+
+    def tag_by_normalized_name(self, normalized_name: str) -> Tag | None:
+        return self.db.scalar(select(Tag).where(Tag.normalized_name == normalized_name))
+
+    def resolve_tag_names(self, names: list[str]) -> tuple[list[str], list[str]]:
+        """把输入名称解析为目录中的规范显示名，同时返回不存在的名称。"""
+
+        normalized = list(dict.fromkeys(
+            " ".join(name.strip().split()).casefold() for name in names if name.strip()
+        ))
+        if not normalized:
+            return [], []
+        tags = list(self.db.scalars(
+            select(Tag).where(Tag.normalized_name.in_(normalized))
+        ))
+        by_name = {tag.normalized_name: tag.name for tag in tags}
+        return (
+            [by_name[name] for name in normalized if name in by_name],
+            [name for name in normalized if name not in by_name],
         )
 
     def replace_photo_tags(

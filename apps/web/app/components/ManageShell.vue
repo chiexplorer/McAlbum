@@ -12,6 +12,7 @@ const links = computed(() => [
   { to: '/manage/photos', label: '上传照片', show: ['photo.create', 'photo.update.own', 'photo.delete.any'].some(api.can) },
   { to: '/manage/media', label: '媒体库', show: api.can('photo.create') },
   { to: '/manage/stories', label: '作品集', show: ['story.create', 'story.update.own', 'story.delete.any'].some(api.can) },
+  { to: '/manage/tags', label: '标签管理', show: api.can('tag.manage') },
   { to: '/manage/profile', label: '玩家档案', show: api.can('profile.manage.own') },
   { to: '/manage/users', label: '账号与角色', show: ['user.review', 'user.role.assign', 'user.ban', 'role.permissions.manage', 'comment.delete.any'].some(api.can) },
 ].filter(item => item.show))

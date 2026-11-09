@@ -5,7 +5,7 @@ from pydantic import ValidationError
 
 from app.core.security import hash_password, secret_hash, secrets_equal, verify_password
 from app.schemas.auth import RegisterRequest
-from app.schemas.content import PhotoWrite, StoryWrite
+from app.schemas.content import PhotoWrite, StoryWrite, TagWrite
 from app.services.auth import ALLOWED_PERMISSIONS
 from app.services.content import new_photo_id
 
@@ -28,6 +28,7 @@ def test_secret_hash_comparison() -> None:
 def test_permissions_remain_fixed_and_small() -> None:
     assert "photo.create" in ALLOWED_PERMISSIONS
     assert "photo.publish.own" in ALLOWED_PERMISSIONS
+    assert "tag.manage" in ALLOWED_PERMISSIONS
     assert all("*" not in permission for permission in ALLOWED_PERMISSIONS)
 
 
@@ -66,6 +67,10 @@ def test_photo_description_is_optional_and_tags_are_normalized() -> None:
 
     assert photo.description == ""
     assert photo.tags == ["夜景", "主城 建筑"]
+
+
+def test_tag_name_is_normalized() -> None:
+    assert TagWrite(name="  主城   建筑  ").name == "主城 建筑"
 
 
 def test_story_rejects_duplicate_section_ids() -> None:

@@ -139,6 +139,7 @@ def test_photo_feed_uses_beijing_month_and_stable_cursor() -> None:
                 ("2099-11", 1),
                 ("2099-10", 2),
             ]
+            assert "时间流测试" in service.list_tags()
         finally:
             session.close()
             transaction.rollback()

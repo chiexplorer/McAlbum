@@ -64,6 +64,11 @@ export class ApiContentRepository {
     return resolvedPhotoSchema.array().parse(payload)
   }
 
+  async getTags(): Promise<string[]> {
+    const payload = await this.fetcher<unknown>(`${this.apiBase}/public/tags`)
+    return z.array(z.string().min(1).max(64)).parse(payload)
+  }
+
   async getPhotoFeed(query: PhotoFeedQuery = {}): Promise<PhotoFeedPage> {
     const params = new URLSearchParams()
     params.set('limit', String(query.limit ?? 40))

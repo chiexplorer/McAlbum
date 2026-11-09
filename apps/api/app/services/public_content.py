@@ -50,6 +50,11 @@ class PublicContentService:
             if variants.get(asset.id)
         ]
 
+    def list_tags(self) -> list[str]:
+        """返回公开相册可实际筛选的标签。"""
+
+        return self.repo.public_tags()
+
     def list_photo_feed(
         self,
         *,

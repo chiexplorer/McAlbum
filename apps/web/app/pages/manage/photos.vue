@@ -20,11 +20,13 @@ interface PhotoItem {
   display_variant: 'featured' | 'normal' | 'portrait' | 'note', status: string,
   rejection_reason: string | null, author_user_id: string,
 }
+interface TagItem { id: string, name: string, usage_count: number, created_at: string }
 
 const api = useManageApi()
 const route = useRoute()
 const photos = ref<PhotoItem[]>([])
 const media = ref<MediaItem[]>([])
+const tagOptions = ref<TagItem[]>([])
 const editingId = ref<string | null>(null)
 const fileInput = ref<HTMLInputElement | null>(null)
 const file = ref<File | null>(null)
@@ -36,7 +38,7 @@ const busy = ref(false)
 const error = ref('')
 const message = ref('')
 const form = reactive({
-  title: '', description: '', asset_id: '', captured_at: beijingToday(), tags: '',
+  title: '', description: '', asset_id: '', captured_at: beijingToday(), tags: [] as string[],
   featured: false, display_variant: 'normal' as PhotoItem['display_variant'],
 })
 const usedAssetIds = computed(() => new Set(photos.value.map(photo => photo.asset_id)))
@@ -48,8 +50,9 @@ const editableMedia = computed(() => media.value.filter(item => (
 useHead({ title: '上传照片 · McAlbum' })
 onMounted(async () => {
   if (!await api.restore()) return
-  [photos.value, media.value] = await Promise.all([
+  [photos.value, media.value, tagOptions.value] = await Promise.all([
     api.request<PhotoItem[]>('/manage/photos'), api.request<MediaItem[]>('/manage/media'),
+    api.request<TagItem[]>('/manage/tags'),
   ])
   const requestedAsset = typeof route.query.asset === 'string' ? route.query.asset : ''
   if (requestedAsset && availableMedia.value.some(item => item.id === requestedAsset)) {
@@ -99,7 +102,7 @@ function payload(assetId = form.asset_id) {
   return {
     title: form.title, description: form.description, asset_id: assetId,
     captured_at: `${form.captured_at}T12:00:00+08:00`, photographer_id: null,
-    tags: form.tags.split(/[，,]/).map(item => item.trim()).filter(Boolean),
+    tags: form.tags,
     player_ids: [], story_ids: [], featured: form.featured,
     display_variant: form.display_variant,
   }
@@ -110,7 +113,7 @@ function edit(photo: PhotoItem) {
   Object.assign(form, {
     title: photo.title, description: photo.description, asset_id: photo.asset_id,
     captured_at: photo.captured_at.slice(0, 10),
-    tags: photo.tags.join('，'), featured: photo.featured, display_variant: photo.display_variant,
+    tags: [...photo.tags], featured: photo.featured, display_variant: photo.display_variant,
   })
   const asset = media.value.find(item => item.id === photo.asset_id)
   altText.value = asset?.alt_text ?? ''
@@ -127,7 +130,7 @@ function clear() {
   titleWasEdited.value = false
   if (fileInput.value) fileInput.value.value = ''
   Object.assign(form, {
-    title: '', description: '', asset_id: '', captured_at: beijingToday(), tags: '',
+    title: '', description: '', asset_id: '', captured_at: beijingToday(), tags: [],
     featured: false, display_variant: 'normal',
   })
 }
@@ -230,7 +233,20 @@ async function remove(photo: PhotoItem) {
           <label>标题<input v-model.trim="form.title" required @input="markTitleEdited"></label>
           <ManageDateField v-model="form.captured_at" label="拍摄日期（北京时间）" />
           <label class="manage-span">说明（可选）<textarea v-model.trim="form.description" rows="4" placeholder="可补充画面背景、故事或值得记录的细节" /></label>
-          <label>标签<input v-model="form.tags" placeholder="建筑，中秋，夜景"></label>
+          <div class="manage-tag-picker">
+            <span>标签</span>
+            <details>
+              <summary>{{ form.tags.length ? `已选择 ${form.tags.length} 项` : '选择标签' }}</summary>
+              <div class="manage-tag-options" role="group" aria-label="照片标签候选项">
+                <label v-for="tag in tagOptions" :key="tag.id">
+                  <input v-model="form.tags" type="checkbox" :value="tag.name">
+                  <span>{{ tag.name }}</span>
+                </label>
+                <p v-if="tagOptions.length === 0">标签目录为空，请联系管理员先建立标签。</p>
+              </div>
+            </details>
+            <small>可多选；候选项由管理员维护。</small>
+          </div>
           <label>版式<select v-model="form.display_variant"><option value="normal">普通</option><option value="featured">精选</option><option value="portrait">竖幅</option><option value="note">札记</option></select></label>
           <label class="manage-check"><input v-model="form.featured" type="checkbox">加入精选候选</label>
         </div>

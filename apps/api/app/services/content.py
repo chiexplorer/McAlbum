@@ -245,6 +245,13 @@ class ContentService:
         }
         for field, values in relations.items():
             if field == "tags":
+                resolved, missing = self.repo.resolve_tag_names(values)
+                if missing:
+                    raise HTTPException(
+                        status.HTTP_422_UNPROCESSABLE_ENTITY,
+                        f"标签不存在：{', '.join(missing)}",
+                    )
+                relations[field] = resolved
                 continue
             model = reference_models[field]
             missing = [value for value in values if self.db.get(model, value) is None]

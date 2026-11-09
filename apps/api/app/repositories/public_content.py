@@ -132,6 +132,20 @@ class PublicContentRepository:
             result[photo_id].append(name)
         return result
 
+    def public_tags(self) -> list[str]:
+        """只返回至少被一张可公开照片使用的标签。"""
+
+        usage_count = func.count(Photo.id)
+        return list(self.db.scalars(
+            select(Tag.name)
+            .join(PhotoTagLink, PhotoTagLink.tag_id == Tag.id)
+            .join(Photo, Photo.id == PhotoTagLink.photo_id)
+            .join(MediaAsset, MediaAsset.id == Photo.asset_id)
+            .where(Photo.status == "published", MediaAsset.processing_status == "ready")
+            .group_by(Tag.id, Tag.name)
+            .order_by(usage_count.desc(), Tag.name)
+        ))
+
     @staticmethod
     def _has_tag(name: str):
         """生成按规范名称匹配标签的关联表 EXISTS 条件。"""

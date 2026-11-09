@@ -28,6 +28,7 @@ PERMISSION_DEFINITIONS = (
     ("story.archive.own", "归档自己的作品集", "作品集", "归档本人作品集"),
     ("story.delete.any", "删除任意作品集", "作品集", "以软删除方式处理作品集"),
     ("profile.manage.own", "管理自己的玩家档案", "玩家档案", "维护本人关联的玩家档案"),
+    ("tag.manage", "管理照片标签", "照片", "新增、重命名和删除照片标签"),
     ("user.review", "审核注册申请", "账号管理", "通过或拒绝注册申请"),
     ("user.role.assign", "分配用户角色", "账号管理", "为账号分配固定角色"),
     ("user.ban", "封禁或解封账号", "账号管理", "变更账号封禁状态"),
@@ -40,7 +41,7 @@ USER_PERMISSIONS = {
     code for code in ALLOWED_PERMISSIONS
     if not code.endswith(".any")
     and not code.startswith(("user.", "role.", "audit."))
-    and code != "snapshot.publish"
+    and code not in {"snapshot.publish", "tag.manage"}
 }
 
 

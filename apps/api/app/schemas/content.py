@@ -43,6 +43,27 @@ class MediaAssetResponse(BaseModel):
     variants: list[MediaVariantResponse]
 
 
+class TagWrite(BaseModel):
+    """管理员维护标签目录时使用的名称契约。"""
+
+    name: str = Field(min_length=1, max_length=64)
+
+    @field_validator("name")
+    @classmethod
+    def normalize_name(cls, value: str) -> str:
+        name = " ".join(value.strip().split())
+        if not name:
+            raise ValueError("标签名称不能为空")
+        return name
+
+
+class TagResponse(BaseModel):
+    id: str
+    name: str
+    usage_count: int
+    created_at: datetime
+
+
 class PhotoWrite(BaseModel):
     title: str = Field(min_length=1, max_length=160)
     description: str = Field(default="", max_length=10000)

@@ -34,6 +34,12 @@ def set_cache_headers(request: Request, response: Response, payload: Any) -> Res
     return None
 
 
+@router.get("/tags", response_model=list[str])
+def list_public_tags(request: Request, response: Response, db: Db) -> Any:
+    tags = PublicContentService(db).list_tags()
+    return set_cache_headers(request, response, tags) or tags
+
+
 @router.get("/photos", response_model=list[PublicPhotoEntry])
 def list_public_photos(request: Request, response: Response, db: Db) -> Any:
     entries = PublicContentService(db).list_photos()

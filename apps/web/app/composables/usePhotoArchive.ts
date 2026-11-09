@@ -27,6 +27,8 @@ export function usePhotoArchive(options: PhotoArchiveOptions) {
   const snapshot = [...getAlbumContent().photos]
     .sort((left, right) => right.photo.capturedAt.localeCompare(left.photo.capturedAt))
   const photos = ref<ResolvedPhoto[]>(filterSnapshot(snapshot, options.month.value, options.tag.value))
+  const snapshotTags = getAlbumContent().tags
+  const tags = ref<string[]>(snapshotTags)
   const timeline = ref<PhotoArchiveMonth[]>(buildPhotoTimeline(filterSnapshot(snapshot, undefined, options.tag.value)))
   const nextCursor = ref<PhotoFeedCursor | null>(null)
   const hasMore = ref(false)
@@ -43,17 +45,19 @@ export function usePhotoArchive(options: PhotoArchiveOptions) {
     loading.value = true
     loadMoreFailed.value = false
     try {
-      const [feed, months] = await Promise.all([
+      const [feed, months, availableTags] = await Promise.all([
         repository.getPhotoFeed({
           limit: 40,
           month: options.month.value,
           tag: options.tag.value,
         }),
         repository.getPhotoTimeline(options.tag.value),
+        repository.getTags(),
       ])
       if (version !== requestVersion.value) return
       photos.value = feed.items
       timeline.value = months
+      tags.value = availableTags
       nextCursor.value = feed.nextCursor
       hasMore.value = feed.hasMore
       usingSnapshot.value = false
@@ -63,6 +67,7 @@ export function usePhotoArchive(options: PhotoArchiveOptions) {
       const taggedSnapshot = filterSnapshot(snapshot, undefined, options.tag.value)
       photos.value = filterSnapshot(taggedSnapshot, options.month.value, undefined)
       timeline.value = buildPhotoTimeline(taggedSnapshot)
+      tags.value = snapshotTags
       nextCursor.value = null
       hasMore.value = false
       usingSnapshot.value = true
@@ -103,6 +108,7 @@ export function usePhotoArchive(options: PhotoArchiveOptions) {
 
   return {
     photos,
+    tags,
     timeline,
     groups,
     total,

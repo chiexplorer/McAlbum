@@ -1,6 +1,6 @@
 """照片和作品集的草稿与审核接口。"""
 
-from fastapi import APIRouter, status
+from fastapi import APIRouter, HTTPException, status
 
 from app.api.dependencies import CsrfPrincipal, Db, PrincipalDep
 from app.schemas.content import (
@@ -8,11 +8,23 @@ from app.schemas.content import (
     PhotoWrite,
     StoryResponse,
     StoryWrite,
+    TagResponse,
     TransitionRequest,
 )
 from app.services.content import ContentService
+from app.services.tags import TagService
 
 router = APIRouter(prefix="/manage")
+
+
+@router.get("/tags", response_model=list[TagResponse])
+def list_tags(principal: PrincipalDep, db: Db) -> list[object]:
+    """为照片编目提供受控的标签候选目录。"""
+
+    allowed = {"photo.create", "photo.update.own", "tag.manage"}
+    if not allowed.intersection(principal.permissions):
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "缺少照片编目权限")
+    return TagService(db).list_catalog()
 
 
 @router.get("/photos", response_model=list[PhotoResponse])

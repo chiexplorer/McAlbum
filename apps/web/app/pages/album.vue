@@ -1,16 +1,18 @@
 <script setup lang="ts">
 import type { PhotoArchiveMonth } from '~/repositories/content-repository'
 import type { PublicMediaAsset } from '~/schemas/content'
+import { getAlbumContent } from '~/repositories/json-content'
 
 const route = useRoute()
 const router = useRouter()
 const selectedAsset = ref<PublicMediaAsset | null>(null)
 const selectedTitle = ref('')
-const rhythmTags = ['全部', '合影', '全景', '烟花', '市集', '空景', '门楼', '灯笼', '夜景', '白天', '建筑', '日常']
+const availableTags = ref<string[]>(getAlbumContent().tags)
+const rhythmTags = computed(() => ['全部', ...availableTags.value])
 
 const activeTag = computed(() => {
   const value = typeof route.query.tag === 'string' ? route.query.tag : '全部'
-  return rhythmTags.includes(value) ? value : '全部'
+  return rhythmTags.value.includes(value) ? value : '全部'
 })
 const activeMonth = computed(() => {
   const value = typeof route.query.month === 'string' ? route.query.month : undefined
@@ -19,6 +21,7 @@ const activeMonth = computed(() => {
 const requestedTag = computed(() => activeTag.value === '全部' ? undefined : activeTag.value)
 const {
   photos: archivePhotos,
+  tags: archiveTags,
   timeline,
   groups,
   total,
@@ -29,6 +32,7 @@ const {
   usingSnapshot,
   loadMore,
 } = usePhotoArchive({ month: activeMonth, tag: requestedTag })
+watchEffect(() => { availableTags.value = archiveTags.value })
 const monthFormatter = new Intl.DateTimeFormat('zh-CN', { month: 'long', timeZone: 'Asia/Shanghai' })
 const timelineYears = computed(() => {
   const years = new Map<number, PhotoArchiveMonth[]>()

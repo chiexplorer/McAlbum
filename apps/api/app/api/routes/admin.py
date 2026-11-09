@@ -1,6 +1,6 @@
 """账号审批、角色权限、审计和归档快照管理。"""
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Response, status
 from sqlalchemy import select
 
 from app.api.dependencies import CsrfPrincipal, Db, PrincipalDep
@@ -15,10 +15,29 @@ from app.schemas.auth import (
     UserRoleUpdate,
     UserSummary,
 )
+from app.schemas.content import TagResponse, TagWrite
 from app.services.auth import AuthService
 from app.services.publication import PublicationService
+from app.services.tags import TagService
 
 router = APIRouter(prefix="/admin")
+
+
+@router.post("/tags", response_model=TagResponse, status_code=status.HTTP_201_CREATED)
+def create_tag(payload: TagWrite, principal: CsrfPrincipal, db: Db) -> object:
+    return TagService(db).create(principal, payload.name)
+
+
+@router.put("/tags/{tag_id}", response_model=TagResponse)
+def update_tag(tag_id: str, payload: TagWrite,
+               principal: CsrfPrincipal, db: Db) -> object:
+    return TagService(db).update(principal, tag_id, payload.name)
+
+
+@router.delete("/tags/{tag_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_tag(tag_id: str, principal: CsrfPrincipal, db: Db) -> Response:
+    TagService(db).delete(principal, tag_id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 def user_summary(repo: UserRepository, user: User) -> UserSummary:
