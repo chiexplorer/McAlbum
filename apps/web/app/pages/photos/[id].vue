@@ -12,7 +12,7 @@ const formatter = new Intl.DateTimeFormat('zh-CN', {
 const ogVariant = computed(() => content.value?.asset.variants.find(variant => variant.name === 'w1920')
   ?? content.value?.asset.variants.at(-1))
 usePageSeo({
-  title: computed(() => content.value ? `${content.value.photo.title} · McAlbum` : '照片档案 · McAlbum'),
+  title: computed(() => content.value ? `${content.value.photo.title} · 数字影集` : '照片档案 · 数字影集'),
   description: computed(() => content.value?.photo.description ?? '读取服务器世界中已经发布的照片档案。'),
   image: computed(() => ogVariant.value ? `/${ogVariant.value.storageKey.replace(/^variants\//, 'media/')}` : undefined),
   type: 'article',

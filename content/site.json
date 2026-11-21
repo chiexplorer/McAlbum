@@ -1,6 +1,6 @@
 {
   "$schema": "../contracts/json-schema/site.schema.json",
-  "title": "McAlbum",
+  "title": "数字影集",
   "description": "记录服务器中的地点、居民、作品与共同经历。",
   "worldStatement": "这里保存的不只是截图，还有谁在这里做过什么，以及它为何值得被记住。",
   "principles": [

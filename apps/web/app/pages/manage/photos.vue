@@ -47,7 +47,7 @@ const editableMedia = computed(() => media.value.filter(item => (
   item.id === form.asset_id || !usedAssetIds.value.has(item.id)
 )))
 
-useHead({ title: '上传照片 · McAlbum' })
+useHead({ title: '上传照片 · 数字影集' })
 onMounted(async () => {
   if (!await api.restore()) return
   [photos.value, media.value, tagOptions.value] = await Promise.all([

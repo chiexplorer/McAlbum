@@ -21,7 +21,7 @@ export default defineNuxtConfig({
       meta: [
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         { name: 'theme-color', content: '#f3f0e8' },
-        { property: 'og:site_name', content: 'McAlbum' },
+        { property: 'og:site_name', content: '数字影集' },
         { property: 'og:locale', content: 'zh_CN' },
       ],
     },

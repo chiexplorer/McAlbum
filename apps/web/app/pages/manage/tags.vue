@@ -14,7 +14,7 @@ const busyId = ref<string | null>(null)
 const error = ref('')
 const message = ref('')
 
-useHead({ title: '标签管理 · McAlbum' })
+useHead({ title: '标签管理 · 数字影集' })
 
 onMounted(async () => {
   if (!await api.restore()) return

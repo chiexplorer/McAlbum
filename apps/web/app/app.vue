@@ -4,7 +4,7 @@ const config = useRuntimeConfig()
 const canonical = computed(() => `${String(config.public.siteUrl).replace(/\/$/, '')}${route.path}`)
 
 useHead(() => ({
-  titleTemplate: title => title ? `${title}` : 'McAlbum · 世界档案馆',
+  titleTemplate: title => title ? `${title}` : '数字影集 · 数字档案馆',
   link: [{ rel: 'canonical', href: canonical.value }],
 }))
 </script>
@@ -16,7 +16,7 @@ useHead(() => ({
     <NuxtPage />
     <footer class="site-footer">
       <div class="page-container site-footer__inner">
-        <p>McAlbum · 一座由玩家共同整理的世界档案馆</p>
+        <p>数字影集 · 一座由玩家共同整理的数字档案馆</p>
         <p>时间按中国北京（UTC+08:00）记录</p>
       </div>
     </footer>

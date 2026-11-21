@@ -75,15 +75,15 @@ function openLightbox(asset: PublicMediaAsset, title: string): void {
   selectedTitle.value = title
 }
 
-usePageSeo({ title: '相册 · McAlbum', description: '按记录主题翻阅服务器照片。' })
+usePageSeo({ title: '相册 · 数字影集', description: '按记录主题翻阅服务器照片。' })
 </script>
 
 <template>
-  <main id="main-content" class="listing-page page-container album-page">
+  <main id="main-content" class="listing-page page-container page-container--wide album-page">
     <header class="page-intro page-intro--album">
       <p class="section-kicker">世界相册</p>
-      <h1>虚拟的世界，<br>真实的故事。</h1>
-      <p>从合影到散场后的空街，照片按照实际拍摄月份归档。当前索引收录 {{ total }} 张记录。</p>
+      <h1>惊鸿一面</h1>
+      <p>照片按照实际拍摄时间归档。当前索引收录 {{ total }} 张记录。</p>
       <p v-if="usingSnapshot && !loading" class="content-sync-note">当前展示离线快照；公开 API 恢复后刷新页面即可同步最新内容。</p>
     </header>
 

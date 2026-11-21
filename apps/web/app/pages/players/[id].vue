@@ -6,7 +6,7 @@ const id = (Array.isArray(route.params.id) ? route.params.id[0] : route.params.i
 const content = getPlayerContent(id)
 if (!content) throw createError({ statusCode: 404, statusMessage: '这份玩家档案不存在，或尚未获得公开许可' })
 
-usePageSeo({ title: `${content.player.name} · 玩家志 · McAlbum`, description: content.player.bio })
+usePageSeo({ title: `${content.player.name} · 玩家志 · 数字影集`, description: content.player.bio })
 </script>
 
 <template>

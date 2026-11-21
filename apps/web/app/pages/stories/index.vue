@@ -1,16 +1,16 @@
 <script setup lang="ts">
 const { stories, refreshing, usingSnapshot } = usePublicStories()
 usePageSeo({
-  title: '历史作品集 · McAlbum',
+  title: '历史作品集 · 数字影集',
   description: '以作品集形式阅读服务器的建设、活动与共同经历。',
 })
 </script>
 
 <template>
-  <main id="main-content" class="listing-page page-container">
+  <main id="main-content" class="listing-page page-container page-container--wide">
     <header class="page-intro">
       <p class="section-kicker">历史作品集</p>
-      <h1>每一次相聚，都有自己的章节。</h1>
+      <h1>虚拟的世界，真实的故事</h1>
       <p>专题不是照片堆叠，而是把场景、经过与余韵重新编成一条可以阅读的路线。</p>
       <p v-if="usingSnapshot && !refreshing" class="content-sync-note">当前展示离线快照；公开 API 恢复后刷新页面即可同步最新内容。</p>
     </header>
@@ -29,9 +29,5 @@ usePageSeo({
 
     <EmptyState v-if="stories.length === 0" title="还没有公开作品集" description="作品集发布后，刷新页面即可在这里看到。" />
 
-    <aside class="material-callout">
-      <p class="section-kicker">档案仍在生长</p>
-      <p>现有素材集中在一次中秋活动。补充施工过程、其他地点和不同时期的记录后，这里会自然长成服务器历史。</p>
-    </aside>
   </main>
 </template>

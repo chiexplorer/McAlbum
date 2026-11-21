@@ -24,7 +24,7 @@ const groupedPermissions = computed(() => {
 const pendingUsers = computed(() => users.value.filter(user => user.status === 'pending'))
 const statusNames: Record<string, string> = { active: '正常', rejected: '已拒绝', banned: '已封禁' }
 
-useHead({ title: '账号与角色 · McAlbum' })
+useHead({ title: '账号与角色 · 数字影集' })
 
 onMounted(async () => {
   if (!await api.restore()) return

@@ -8,7 +8,7 @@ const ogVariant = computed(() => coverAsset.value?.variants.find(variant => vari
   ?? coverAsset.value?.variants.at(-1))
 
 usePageSeo({
-  title: computed(() => content.value ? `${content.value.story.title} · McAlbum` : '历史专题 · McAlbum'),
+  title: computed(() => content.value ? `${content.value.story.title} · 数字影集` : '历史专题 · 数字影集'),
   description: computed(() => content.value?.story.summary ?? '阅读服务器已经发布的历史作品集。'),
   image: computed(() => ogVariant.value ? `/${ogVariant.value.storageKey.replace(/^variants\//, 'media/')}` : undefined),
   type: 'article',

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const api = useManageApi(); const missing = ref(false); const error = ref(''); const message = ref('')
 const form = reactive({ name: '', bio: '', status: 'private', joined_at: '', avatar_asset_id: '' })
-useHead({ title: '玩家档案 · McAlbum' })
+useHead({ title: '玩家档案 · 数字影集' })
 onMounted(async () => { if (!await api.restore()) return; try { const profile = await api.request<Record<string, string | null>>('/manage/profile'); Object.assign(form, { ...profile, joined_at: profile.joined_at || '', avatar_asset_id: profile.avatar_asset_id || '' }) } catch { missing.value = true; form.name = api.session.value?.user.display_name || '' } })
 async function save() { error.value = ''; try { await api.request('/manage/profile', { method: 'PUT', body: { ...form, joined_at: form.joined_at || null, avatar_asset_id: form.avatar_asset_id || null } }); missing.value = false; message.value = '玩家档案已保存。公开状态仍由你选择。' } catch (caught) { error.value = api.errorMessage(caught) } }
 </script>

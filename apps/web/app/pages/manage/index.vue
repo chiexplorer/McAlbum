@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const api = useManageApi()
-useHead({ title: '编目工作台 · McAlbum' })
+useHead({ title: '编目工作台 · 数字影集' })
 
 const tasks = computed(() => [
   { to: '/manage/photos', title: '上传一张照片', text: '一次完成原图入库，并补充标题、时间与标签。', permission: 'photo.create' },
@@ -13,7 +13,7 @@ const tasks = computed(() => [
   <ManageShell>
     <header class="manage-heading">
       <p class="section-kicker">今日编目</p>
-      <h1>从一条可靠的记录开始</h1>
+      <h1>编辑照片和相关信息</h1>
       <p>新内容先保存为草稿。提交审核后，管理员或具有直接发布权限的作者才能把它放入公开档案。</p>
     </header>
     <div class="manage-task-list">

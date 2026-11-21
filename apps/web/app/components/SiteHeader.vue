@@ -1,9 +1,9 @@
 <template>
   <header class="site-header">
     <div class="site-header__inner page-container">
-      <NuxtLink class="site-mark" to="/" aria-label="McAlbum 世界首页">
-        <span class="site-mark__seal" aria-hidden="true">麦</span>
-        <span>McAlbum</span>
+      <NuxtLink class="site-mark" to="/" aria-label="数字影集 世界首页">
+        <span class="site-mark__seal" aria-hidden="true">数</span>
+        <span>数字影集</span>
       </NuxtLink>
       <nav class="desktop-nav" aria-label="主导航">
         <ul class="site-nav">

@@ -42,7 +42,7 @@ const blockTypes: Array<{ value: BlockType, label: string }> = [
   { value: 'text-with-image', label: '图文并排' },
 ]
 
-useHead({ title: '作品集编排 · McAlbum' })
+useHead({ title: '作品集编排 · 数字影集' })
 
 onMounted(async () => {
   if (!await api.restore()) return

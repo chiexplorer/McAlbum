@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const props = defineProps<{ error: { statusCode?: number; statusMessage?: string; message?: string } }>()
-useSeoMeta({ title: `${props.error.statusCode ?? 500} · 档案未找到 · McAlbum`, robots: 'noindex' })
+useSeoMeta({ title: `${props.error.statusCode ?? 500} · 档案未找到 · 数字影集`, robots: 'noindex' })
 </script>
 
 <template>

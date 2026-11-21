@@ -13,7 +13,7 @@ interface MediaItem {
 
 const api = useManageApi()
 const items = ref<MediaItem[]>([])
-useHead({ title: '媒体库 · McAlbum' })
+useHead({ title: '媒体库 · 数字影集' })
 
 onMounted(async () => {
   if (!await api.restore()) return

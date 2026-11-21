@@ -26,7 +26,7 @@ function openLightbox(asset: PublicMediaAsset, title: string): void {
 const ogVariant = coverAsset.variants.find(variant => variant.name === 'w1920')
   ?? coverAsset.variants.at(-1)
 usePageSeo({
-  title: `${site.title} · 世界档案馆`,
+  title: `${site.title} · 数字档案馆`,
   description: site.description,
   image: ogVariant ? `/${ogVariant.storageKey.replace(/^variants\//, 'media/')}` : undefined,
 })
@@ -61,40 +61,25 @@ usePageSeo({
       </div>
     </section>
 
-    <section class="intro page-container" aria-labelledby="intro-title">
-      <p class="section-kicker">关于这座档案馆</p>
-      <div>
-        <h2 id="intro-title">把共同生活过的世界，留在版本更迭之后</h2>
-        <p>{{ site.description }}照片、地点、作品和玩家不会被拆成孤立的数据；它们会沿着同一次建设、探索或节日重新相遇。</p>
-      </div>
-      <dl class="server-facts">
-        <div><dt>Minecraft</dt><dd>{{ site.minecraftVersion }}</dd></div>
-        <div><dt>Fabric</dt><dd>{{ site.fabricVersion }}</dd></div>
-        <div><dt>时区</dt><dd>中国北京</dd></div>
-      </dl>
-    </section>
-
     <section class="principles-section page-container" aria-labelledby="principles-title">
       <header>
         <p class="section-kicker">共同游玩原则</p>
-        <h2 id="principles-title">轻一些规则，长久一点相处。</h2>
+        <h2 id="principles-title">轻规则，长相处。</h2>
       </header>
-      <ol>
-        <li v-for="(principle, index) in site.principles" :key="principle.title">
-          <span>0{{ index + 1 }}</span>
+      <ul>
+        <li v-for="principle in site.principles" :key="principle.title">
           <h3>{{ principle.title }}</h3>
           <p>{{ principle.description }}</p>
         </li>
-      </ol>
+      </ul>
     </section>
 
     <section id="recent-photos" class="archive-section page-container" aria-labelledby="recent-title">
       <header class="section-heading">
         <div>
           <p class="section-kicker">照片散页</p>
-          <h2 id="recent-title">最近整理的记录</h2>
+          <h2 id="recent-title">最近截图</h2>
         </div>
-        <p>点击照片可以查看大图。文字内容目前为编辑草稿，正式发布前仍会校订。</p>
       </header>
 
       <div class="filter-row" aria-label="照片筛选示例">

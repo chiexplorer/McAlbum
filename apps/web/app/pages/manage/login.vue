@@ -11,7 +11,7 @@ const error = ref('')
 const success = ref('')
 const busy = ref(false)
 
-useHead({ title: '登录编目室 · McAlbum' })
+useHead({ title: '登录编目室 · 数字影集' })
 
 onMounted(async () => {
   if (await api.restore()) await navigateTo('/manage')
@@ -52,7 +52,7 @@ async function submit() {
   <main id="main-content" class="manage-login">
     <section class="manage-login__intro">
       <NuxtLink class="site-mark" to="/">
-        <span class="site-mark__seal" aria-hidden="true">麦</span><span>McAlbum</span>
+        <span class="site-mark__seal" aria-hidden="true">数</span><span>数字影集</span>
       </NuxtLink>
       <div>
         <p class="section-kicker">协作入口</p>
